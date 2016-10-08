@@ -4,6 +4,7 @@
 }
 
 let int = ['0'-'9']+
+let string = (['a'-'z'] | ['A'-'Z'])+
 let white = [' ' '\t']+
 let newline = '\r' | '\n' | "\r\n"
 
@@ -16,5 +17,6 @@ rule read =
 	| '-'		   {SUB}
 	| '*'		   {MUL}	
 	| '/'		   {DIV}
+	| ';'		   {SEMCO}
 	| _			   {raise (SyntaxError ("Unexpected char: " ^ Lexing.lexeme lexbuf))}	
 	| eof		   {EOF}
