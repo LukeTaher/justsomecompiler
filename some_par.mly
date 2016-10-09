@@ -59,7 +59,7 @@
 %%
 
 top:
-	| expl = list(fundef); EOF {expl}
+	| prog = list(fundef); EOF {prog}
 
 fundef:
 	| s = IDENT; LBRACK; ss = separated_list(COMMA, args); RBRACK; 
@@ -72,6 +72,7 @@ exp:
 	| v = value; SEMCO; {v}
 	| c = const; {c}
 	| st = stmt; SEMCO; {st}
+	| e = exp; f = exp; {Seq(e,f)}
 
 const: (* TODO: rename *)
 	(*| e = exp; SEMCO; f = exp {Seq(e, f)} 
