@@ -1,6 +1,6 @@
 type biop =
   | Add | Sub | Mul | Div
-  | Le  | Ge  | Leq | Geq
+  | Eq  | Le  | Ge  | Leq | Geq
   | And | Or
 
 type expression =
@@ -16,7 +16,7 @@ type expression =
   | Readint (* read_int () *)
   | Printint of expression (* print_int (e) *)
   | Identifier of string (* x *)
-  | Let of string * expression * expression (* let x = e in e *)
+  (*| Let of string * expression * expression (* let x = e in e *) *)
   (* | New of string * expression * expression (* new x = e in e *) *)
 
 type fundef = string * string list * expression 
@@ -30,6 +30,7 @@ let string_of_biop = function
   | Sub -> "Sub" 
   | Mul -> "Mul" 
   | Div -> "Div"
+  | Eq -> "Eq"
   | Le -> "Le"  
   | Ge -> "Ge"  
   | Leq -> "Leq" 
@@ -72,12 +73,12 @@ let rec string_of_expression expr depth =
     | Readint -> "Readint"
     | Printint e -> "Printint (" ^ string_of_expression e (depth+1) ^ ")"
     | Identifier s -> "Identifier \"" ^ s ^ "\""
-    | Let (s, e, e') -> "Let (\"" ^ s ^ "\", " ^ 
+(*     | Let (s, e, e') -> "Let (\"" ^ s ^ "\", " ^ 
                         string_of_expression e (depth+1) ^ ",\n" ^
                         tab_string (depth+1) ^ 
                         string_of_expression e' (depth+1) ^ "\n" ^
                         tab_string (depth) ^ 
-                        ")"
+                        ")" *)
 
 let rec string_of_params = function
   | [] -> ""
@@ -88,11 +89,10 @@ let string_of_fundef (name, ps, exp) = "(\"" ^ name ^ "\", [" ^ string_of_params
                                        "],\n\t" ^ string_of_expression exp 1 ^
                                        "\n)"
 
-let string_of_prog fs = "[\n" ^ string_of_prog' fs ^ "\n]\n"
-
 let rec string_of_prog' = function
   | [] -> ""
   | [x] -> string_of_fundef x
   | x::xs -> string_of_fundef x ^ ";\n" ^ string_of_prog' xs
 
+let string_of_prog fs = "[\n" ^ string_of_prog' fs ^ "\n]\n"
 

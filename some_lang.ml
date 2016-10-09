@@ -1,3 +1,4 @@
+open Some_types
 open Some_lex
 open Lexing
 open Printf
@@ -27,6 +28,5 @@ let _ =
 		|> Buffer.contents
 		|> Lexing.from_string
 		|> parse_with_error
-		|> List.map string_of_int
-		|> String.concat ",\n"
-		|> print_endline
+		|> string_of_prog
+		|> printf "%s"
