@@ -11,15 +11,16 @@ type expression =
   | Deref of expression (* *e *)
   | Operation of biop * expression * expression (* e + e *)
   | Negation of expression (* !e *)
-  | Application of expression * expression (* e(e) *)
+  | Application of expression * expression list (* e(e) *)
   | Const of int (* 7 *)
   | Readint (* read_int () *)
   | Printint of expression (* print_int (e) *)
   | Identifier of string (* x *)
   | Let of string * expression * expression (* let x = e in e *) 
   | New of string * expression * expression (* new x = e in e *)
+  | Return of expression (* return e *)
 
-type fundef = string * string list * expression 
+type fundef = string * expression list * expression 
 
 type program = fundef list
 
@@ -68,8 +69,8 @@ let rec string_of_expression expr depth =
                                 string_of_expression e (depth+1) ^ ", " ^
                                 string_of_expression e' (depth+1) ^ ")"
     | Negation e -> "Negation (" ^ string_of_expression e (depth+1) ^ ")"
-    | Application (e, e') -> "Application (" ^ string_of_expression e (depth+1) ^ ", " ^
-                               string_of_expression e' (depth+1) ^ ")"
+    | Application (e, e') -> "Application (" ^ string_of_expression e (depth+1) ^ ", [" ^
+                               string_of_params e' ^ "])"
     | Readint -> "Readint"
     | Printint e -> "Printint (" ^ string_of_expression e (depth+1) ^ ")"
     | Identifier s -> "Identifier \"" ^ s ^ "\""
@@ -85,11 +86,12 @@ let rec string_of_expression expr depth =
                         string_of_expression e' (depth+1) ^ "\n" ^
                         tab_string (depth) ^ 
                         ")"
+    | Return e -> "Return (" ^ string_of_expression e (depth+1) ^ ")"
 
-let rec string_of_params = function
+and string_of_params = function
   | [] -> ""
-  | [x] -> x
-  | x::xs -> x ^ "; " ^ string_of_params xs
+  | [x] -> string_of_expression x 0
+  | x::xs -> string_of_expression x 0 ^ "; " ^ string_of_params xs
 
 let string_of_fundef (name, ps, exp) = "(\"" ^ name ^ "\", [" ^ string_of_params ps ^
                                        "],\n\t" ^ string_of_expression exp 1 ^

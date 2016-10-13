@@ -20,6 +20,7 @@ rule read =
 	| "print_int"  {PINT}
 	| "const int"		   {CVAR}
 	| "int"		   {VAR}
+	| "return"		   {RETURN}
 	| string 	   {IDENT (Lexing.lexeme lexbuf)}
 	| "&&"		   {AND}
 	| "||" 		   {OR}

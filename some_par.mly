@@ -39,6 +39,8 @@ open Some_types
 %token COMMA
 %token SEMCO
 
+%token RETURN
+
 %token EOF
 
 
@@ -61,16 +63,17 @@ top:
 	| prog = list(fundef); EOF {prog}
 
 fundef:
-	| s = IDENT; LBRACK; ss = separated_list(COMMA, args); RBRACK; 
-		  LBRACE; e = exp; RBRACE;	{(s, ss, e)} 
+	| s = IDENT; LBRACK; ss = separated_list(COMMA, value); RBRACK; 
+		  LBRACE; e = exp; RBRACE	{(s, ss, e)} 
 
-args:
-	| s = IDENT; 	{s}
+(*args:
+	| s = IDENT; 	{s}*)
 
 exp:
 	| e = exps 	{e}
 	| e = exps; f = exp {Seq(e, f)}
 	| v = var {v}
+	| RETURN; v = value; SEMCO; {Return(v)} 
 
 exps:
 	(*| v = value; SEMCO {v}*)
@@ -118,6 +121,6 @@ boolop:
 	| NEG; LBRACK; b = value; RBRACK	{Negation(b)}
 
 apps:
-	| s = IDENT; LBRACK; v = value; RBRACK {Application(Deref(Identifier s), v)} (*TODO: change to  value list*)
+	| s = IDENT; LBRACK; ss = separated_list(COMMA, value); RBRACK {Application(Deref(Identifier s), ss)}
 	| RINT; LBRACK; RBRACK {Readint}
 	| PINT; LBRACK; m = mathop; RBRACK {Printint m}
