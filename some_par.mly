@@ -38,17 +38,8 @@ open Some_types
 
 %token COMMA
 %token SEMCO
-%token END
 
 %token EOF
-
-(*%left COMMA
-%left SEMCO
-*)
-(*%right VAR
-%right CVAR
-%right PINT
-%right RINT*)
 
 
 %left OR
@@ -85,7 +76,7 @@ exps:
 	(*| v = value; SEMCO {v}*)
 	| st = stmt; SEMCO {st}
 	(*| e = exp; f = exp {Seq(e,f)}*)
-	| c = cstruct; END {c}
+	| c = cstruct {c}
 
 var:
 	| CVAR; s = IDENT; ASG; st = stmt; SEMCO; e = exp {Let(s,st,e)}
@@ -105,7 +96,7 @@ value:
 	| a = apps 	 {a}
 	| m = mathop {m}
 	| b = boolop {b}
-	| s = IDENT {Identifier s}
+	| s = IDENT {Deref(Identifier s)}
 
 mathop:
 	| i = CONST 			  {Const(i)}
@@ -127,6 +118,6 @@ boolop:
 	| NEG; LBRACK; b = value; RBRACK	{Negation(b)}
 
 apps:
-	| s = IDENT; LBRACK; v = value; RBRACK {Application(Identifier s, v)} (*TODO: change to  value list*)
+	| s = IDENT; LBRACK; v = value; RBRACK {Application(Deref(Identifier s), v)} (*TODO: change to  value list*)
 	| RINT; LBRACK; RBRACK {Readint}
 	| PINT; LBRACK; m = mathop; RBRACK {Printint m}
