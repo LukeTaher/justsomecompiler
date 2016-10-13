@@ -16,8 +16,8 @@ type expression =
   | Readint (* read_int () *)
   | Printint of expression (* print_int (e) *)
   | Identifier of string (* x *)
-  (*| Let of string * expression * expression (* let x = e in e *) *)
-  (* | New of string * expression * expression (* new x = e in e *) *)
+  | Let of string * expression * expression (* let x = e in e *) 
+  | New of string * expression * expression (* new x = e in e *)
 
 type fundef = string * string list * expression 
 
@@ -73,12 +73,18 @@ let rec string_of_expression expr depth =
     | Readint -> "Readint"
     | Printint e -> "Printint (" ^ string_of_expression e (depth+1) ^ ")"
     | Identifier s -> "Identifier \"" ^ s ^ "\""
-(*     | Let (s, e, e') -> "Let (\"" ^ s ^ "\", " ^ 
+    | Let (s, e, e') -> "Let (\"" ^ s ^ "\", " ^ 
                         string_of_expression e (depth+1) ^ ",\n" ^
                         tab_string (depth+1) ^ 
                         string_of_expression e' (depth+1) ^ "\n" ^
                         tab_string (depth) ^ 
-                        ")" *)
+                        ")"
+    | New (s, e, e') -> "New (\"" ^ s ^ "\", " ^ 
+                        string_of_expression e (depth+1) ^ ",\n" ^
+                        tab_string (depth+1) ^ 
+                        string_of_expression e' (depth+1) ^ "\n" ^
+                        tab_string (depth) ^ 
+                        ")"
 
 let rec string_of_params = function
   | [] -> ""

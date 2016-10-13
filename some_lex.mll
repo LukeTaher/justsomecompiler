@@ -18,8 +18,9 @@ rule read =
 	| "while"      {WHILE}
 	| "read_int"   {RINT}
 	| "print_int"  {PINT}
-(*	| "let"		   {LET}
-	| "in"		   {IN}*)
+	| "const int"		   {CVAR}
+	| "int"		   {VAR}
+	| "end"		   {END}
 	| string 	   {IDENT (Lexing.lexeme lexbuf)}
 	| "&&"		   {AND}
 	| "||" 		   {OR}
@@ -32,8 +33,6 @@ rule read =
 	| '!'		   {NEG}
 	| '('		   {LBRACK}
 	| ')'		   {RBRACK}
-	| '['		   {LSBRACK}
-	| ']'		   {RSBRACK}
 	| '{'		   {LBRACE}
 	| '}'		   {RBRACE}
 	| '+'		   {ADD}
