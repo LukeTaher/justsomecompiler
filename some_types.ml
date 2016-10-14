@@ -7,22 +7,22 @@ type biop =
 
 type expression =
   | Seq of expression * expression (* e; e *)
-  | While of expression * expression (* while e do e *)
-  | If of expression * expression * expression (* if e do e else e *)
-  | Asg of expression * expression (* e := e *)
-  | Deref of expression (* *e *)
+  | While of expression * expression (* while(e){e} *)
+  | If of expression * expression * expression (* if(e){e}else{e} *)
+  | Asg of expression * expression (* e = e *)
+  | Deref of expression
   | Operation of biop * expression * expression (* e + e *)
   | Negation of expression (* !e *)
   | Application of expression * expression list (* e(e) *)
   | Const of int (* 7 *)
-  | Readint (* read_int () *)
-  | Printint of expression (* print_int (e) *)
+  | Readint (* read_int() *)
+  | Printint of expression (* print_int(e) *)
   | Identifier of string (* x *)
-  | Let of string * expression * expression (* let x = e in e *) 
-  | New of string * expression * expression (* new x = e in e *)
+  | Let of string * expression * expression (* const int x = e; e *) 
+  | New of string * expression * expression (* const int x = e; e *)
   | Return of expression (* return e *)
 
-type fundef = string * expression list * expression 
+type fundef = string * expression list * expression (* x(e){e} *)
 
 type program = fundef list
 
