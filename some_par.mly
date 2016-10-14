@@ -2,20 +2,25 @@
 open Some_types
 %}
 
+(* Data types *)
 %token <int> CONST
 %token <string> IDENT
 
+(* Constructs *)
 %token IF
 %token ELSE
 %token WHILE
 
+(* Functions *)
 %token RINT
 %token PINT
 
+(* Declarations *)
 %token CVAR
 %token VAR
 %token ASG
 
+(* Operators *)
 %token EQ
 %token NEG
 %token AND
@@ -24,25 +29,29 @@ open Some_types
 %token LEQ
 %token GE
 %token LE
-
-%token LBRACK
-%token RBRACK
-%token LBRACE
-%token RBRACE
-
 %token ADD
 %token SUB
 %token MUL
 %token DIV
 
+(* Brackets *)
+%token LBRACK
+%token RBRACK
+%token LBRACE
+%token RBRACE
+
+(* Separators *)
 %token COMMA
 %token SEMCO
 
+(* Return *)
 %token RETURN
 
+(* End of file *)
 %token EOF
 
 
+(* Derivation and precedence rules *)
 %left OR
 %left AND
 %left EQ
@@ -58,68 +67,71 @@ open Some_types
 %start <Some_types.program> top
 %%
 
+(* program *)
 top:
-	| prog = list(fundef); EOF {prog}
+	| prog = list(fundef); EOF	{prog}
 
+(* functions - program contents *)
 fundef:
 	| s = IDENT; LBRACK; ss = separated_list(COMMA, value); RBRACK; 
-		  LBRACE; e = exp; RBRACE	{(s, ss, e)} 
+		  LBRACE; e = exp; RBRACE										{(s, ss, e)} 
 
-(*args:
-	| s = IDENT; 	{s}*)
-
+(* expressions - function contents *)
 exp:
-	| e = exps 	{e}
-	| e = exps; f = exp {Seq(e, f)}
-	| v = var {v}
-	| RETURN; v = value; SEMCO; {Return(v)} 
+	| e = sexp 					{e}
+	| e = sexp; f = exp 		{Seq(e, f)}
+	| v = var 					{v}
+	| RETURN; v = value; SEMCO	{Return(v)} 
 
-exps:
-	(*| v = value; SEMCO {v}*)
-	| st = stmt; SEMCO {st}
-	(*| e = exp; f = exp {Seq(e,f)}*)
-	| c = cstruct {c}
+(* subexpressions - expression contents *)
+sexp:
+	| st = stmt; SEMCO	{st}
+	| c = cstruct 		{c}
 
+(* variable definitions - expression contents *)
 var:
-	| CVAR; s = IDENT; ASG; st = stmt; SEMCO; e = exp {Let(s,st,e)}
-	| VAR; s = IDENT; ASG; st = stmt; SEMCO; e = exp {New(s,st,e)}
+	| CVAR; s = IDENT; ASG; st = stmt; SEMCO; e = exp 	{Let(s,st,e)}
+	| VAR; s = IDENT; ASG; st = stmt; SEMCO; e = exp 	{New(s,st,e)}
 
+(* constructs - subexpression contents *)
 cstruct:
-	| WHILE; LBRACK; v = value; RBRACK; LBRACE; e = exp; RBRACE {While(v, e)}
+	| WHILE; LBRACK; v = value; RBRACK; LBRACE; e = exp; RBRACE	{While(v, e)}
 	| IF; LBRACK; v = value; RBRACK; LBRACE; e = exp; RBRACE;
-	  ELSE; LBRACE; f = exp; RBRACE {If(v, e, f)}
+	  ELSE; LBRACE; f = exp; RBRACE 							{If(v, e, f)}
 
+(* statements - subexpression contents *)
 stmt:
-	| s = IDENT; ASG; st = stmt {Asg(Identifier s, st)}
-	(*| s = IDENT {Identifier s}*) 
-	| v = value {v}
+	| s = IDENT; ASG; st = stmt	{Asg(Identifier s, st)}
+	| v = value 				{v}
 
+(* values - statement contents *)
 value:
-	| a = apps 	 {a}
-	| m = mathop {m}
-	| b = boolop {b}
-	| s = IDENT {Deref(Identifier s)}
+	| a = apps 	 	{a}
+	| m = mathexp	{m}
+	| b = boolexp 	{b}
+	| s = IDENT  	{Deref(Identifier s)}
 
-mathop:
-	| i = CONST 			  {Const(i)}
-	(*| s = IDENT {Identifier s}*)
+(* math expressions - value contents *)
+mathexp:
+	| i = CONST 			  	  {Const(i)}
 	| m = value; ADD; n = value   {Operation(Add, m, n)}
 	| m = value; SUB; n = value   {Operation(Sub, m, n)}
 	| m = value; MUL; n = value   {Operation(Mul, m, n)}
 	| m = value; DIV; n = value   {Operation(Div, m, n)}
 
-boolop:
-	(*| a = apps; 			  {a}*)
-	| v = value; EQ; w = value 		{Operation(Eq, v, w)}
+(* bool expressions - value contents *)
+boolexp:
+	| v = value; EQ; w = value 			{Operation(Eq, v, w)}
 	| v = value; GEQ; w = value 		{Operation(Geq, v, w)}
 	| v = value; LEQ; w = value 		{Operation(Leq, v, w)}
-	| v = value; GE; w = value 		{Operation(Ge, v, w)}
-	| v = value; LE; w = value 		{Operation(Le, v, w)}
-	| b = value; AND; c = value 	{Operation(And, b, c)}
-	| b = value; OR; c = value 	{Operation(Or, b, c)}
+	| v = value; GE; w = value 			{Operation(Ge, v, w)}
+	| v = value; LE; w = value 			{Operation(Le, v, w)}
+	| b = value; AND; c = value 		{Operation(And, b, c)}
+	| b = value; OR; c = value 			{Operation(Or, b, c)}
 	| NEG; LBRACK; b = value; RBRACK	{Negation(b)}
 
+(* application expressions - value contents *)
 apps:
-	| s = IDENT; LBRACK; ss = separated_list(COMMA, value); RBRACK {Application(Deref(Identifier s), ss)}
-	| RINT; LBRACK; RBRACK {Readint}
-	| PINT; LBRACK; m = mathop; RBRACK {Printint m}
+	| s = IDENT; LBRACK; ss = separated_list(COMMA, value); RBRACK	{Application(Deref(Identifier s), ss)}
+	| RINT; LBRACK; RBRACK 										    {Readint}
+	| PINT; LBRACK; m = mathexp; RBRACK 							{Printint m}

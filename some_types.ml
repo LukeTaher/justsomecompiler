@@ -1,3 +1,5 @@
+(* AST types *)
+
 type biop =
   | Add | Sub | Mul | Div
   | Eq  | Le  | Ge  | Leq | Geq
@@ -23,6 +25,10 @@ type expression =
 type fundef = string * expression list * expression 
 
 type program = fundef list
+
+
+
+(* AST pretty print *)
 
 let rec tab_string = function | 0 -> "" | x -> "\t" ^ tab_string (x-1)
 

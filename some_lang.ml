@@ -3,6 +3,7 @@ open Some_lex
 open Lexing
 open Printf
 
+(* read file into buffer *)
 let rec read_to_empty buf file =
 	try
 		let s = input_line file in
@@ -12,11 +13,13 @@ let rec read_to_empty buf file =
 			close_in file;
 			buf
 
+(* print error *)
 let print_position lexbuf = 
 	let curpos = lexbuf.lex_curr_p.pos_cnum in
 	let token = Lexing.lexeme lexbuf in
 	eprintf "Unexpected token %s found at position %i \n" token curpos
 
+(* parse *)
 let parse_with_error lexbuf = 
 	try Some_par.top Some_lex.read lexbuf with 
 		| SyntaxError msg -> prerr_string (msg ^ ": ");
