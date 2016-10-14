@@ -7,20 +7,22 @@ let int = ['0'-'9']+
 let string = ['a'-'z' 'A'-'Z']+
 let white = [' ' '\t']+
 let newline = '\r' | '\n' | "\r\n"
+let comment = "/*"[^'*''/']*"*/"
 
 rule read = 
 	parse
 	| white		   {read lexbuf}
 	| newline	   {read lexbuf}
 	| int		   {CONST (int_of_string (Lexing.lexeme lexbuf))}
+	| comment	   {read lexbuf}
 	| "if"		   {IF}
 	| "else" 	   {ELSE}
 	| "while"      {WHILE}
 	| "read_int"   {RINT}
 	| "print_int"  {PINT}
-	| "const int"		   {CVAR}
+	| "const int"  {CVAR}
 	| "int"		   {VAR}
-	| "return"		   {RETURN}
+	| "return"	   {RETURN}
 	| string 	   {IDENT (Lexing.lexeme lexbuf)}
 	| "&&"		   {AND}
 	| "||" 		   {OR}
