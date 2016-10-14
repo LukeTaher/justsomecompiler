@@ -38,7 +38,8 @@ Instructions can be in the form of the following expressions:
 ```
 int varName = 5               //variable declaration
 const int varName = 5         //constant declaration
-varName                       //dereferenced variable
+varName                       //variable
+~x                            //dereferance variable
 
 5;                             //constant
 5 {math operation} x           //mathmatical expression
