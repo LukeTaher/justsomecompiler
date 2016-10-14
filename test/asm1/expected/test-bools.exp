@@ -1,0 +1,17 @@
+[
+("a", [Identifier "x"; Identifier "y"; Identifier "z"],
+	If (Operation (And, Identifier "x", Identifier "y"),
+		Negation (Identifier "y"),
+		Negation (Identifier "z")
+	)
+);
+("b", [Identifier "x"; Identifier "y"; Identifier "z"],
+	If (Operation (Geq, Identifier "y", Const 10),
+		Operation (Geq, Identifier "y", Const 10),
+		If (Operation (Or, Identifier "z", Identifier "x"),
+			Negation (Identifier "z"),
+			Identifier "x"
+		)
+	)
+)
+]

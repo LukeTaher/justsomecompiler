@@ -1,0 +1,11 @@
+[
+("a", [],
+	Application (Identifier "b", [])
+);
+("b", [],
+	Application (Identifier "c", [])
+);
+("c", [],
+	Readint
+)
+]

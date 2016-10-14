@@ -1,0 +1,14 @@
+[
+("a", [Identifier "x"],
+	If (Identifier "x",
+		Const 10,
+		Const 20
+	)
+);
+("b", [Identifier "x"],
+	Asg (Identifier "x", If (Operation (Ge, Identifier "x", Const 0),
+			Const 5,
+			Const 6
+		))
+)
+]

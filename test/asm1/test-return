@@ -1,0 +1,13 @@
+/*
+	Tests return
+*/
+
+a(){
+	return 5
+}
+
+b(){
+	int x = 5;
+	int y = 10;
+	return y >= 5
+}

@@ -1,0 +1,43 @@
+/*
+	Tests Bisection method
+*/
+
+iterativeBisection(f, a, b, TOL, NMAX){
+	int N = 1;
+	while(N <= NMAX){ /* limit iterations to prevent infinite loop */
+		int c = (a+b)/2; /* new midpoint */
+		if(f(c) == 0 ||  (b-a)/2 < TOL){ /* solution found */
+			print_int(c)
+		}
+		else{
+			N = N+1; /* increment step counter */
+			if((f(c) >= 0 && f(a) >= 0) || (f(c) <= 0 && f(a) <= 0)){ /* new interval */
+				a = c
+			}
+			else{
+				b = c
+			}
+		}
+	};
+	failed()
+}
+
+recursiveBisection(f, a, b, TOL, NMAX){
+	if(NMAX < 0){ /* limit iterations to prevent infinite recursion */
+		failed()
+	}else{
+		int c = (a+b)/2; /* new midpoint */
+		if(f(c) == 0 || (b-a)/2 < TOL){ /* solution found */
+			print_int(c)
+		}
+		else{
+			if((f(c) >= 0 && f(a) >= 0) || (f(c) <= 0 && f(a) <= 0)){ /* new interval */
+				a = c
+			}
+			else{
+				b = c
+			};
+			print_int(recursiveBisection(f, a, b, TOL, NMAX-1)) /* decrement N */
+		}
+	}
+}

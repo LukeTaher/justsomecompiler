@@ -1,0 +1,26 @@
+[
+("a", [],
+	Seq (
+		Const 5,
+		Seq (
+			Const 5,
+			Seq (
+				Const 5,
+				Seq (
+					Const 5,
+					Const 5
+				)
+			)
+		)
+	)
+);
+("b", [],
+	Seq (
+		Asg (Identifier "x", If (Operation (Eq, Identifier "x", Identifier "x"),
+				Const 5,
+				Const 6
+			)),
+		Identifier "x"
+	)
+)
+]

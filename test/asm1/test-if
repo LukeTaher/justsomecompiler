@@ -1,0 +1,21 @@
+/*
+	Tests if statements
+*/
+
+a(x){
+	if(x){
+		10
+	}
+	else{
+		20
+	}
+}
+
+b(x){
+	x = if(x > 0){
+		5
+	}
+	else{
+		6
+	}
+}

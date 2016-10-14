@@ -1,0 +1,17 @@
+[
+("a", [],
+	Const 5
+);
+("b", [],
+	Operation (Add, Const 5, Const 5)
+);
+("c", [],
+	Operation (Sub, Const 5, Const 5)
+);
+("d", [],
+	Operation (Mul, Const 5, Const 5)
+);
+("e", [],
+	Operation (Div, Const 5, Const 5)
+)
+]

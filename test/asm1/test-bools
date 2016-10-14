@@ -1,0 +1,26 @@
+/*
+	Tests bools and bool operations
+*/
+
+a(x,y,z){
+	if(x && y){
+		!(y)
+	}
+	else{
+		!(z)
+	}
+}
+
+b(x,y,z){
+	if(y >= 10){
+		y >= 10
+	}
+	else{
+		if(z || x){
+			!(z)
+		}
+		else{
+			x
+		}
+	}
+}

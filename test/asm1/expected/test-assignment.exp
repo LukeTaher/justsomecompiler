@@ -1,0 +1,27 @@
+[
+("a", [],
+	New ("x", Const 5,
+		Identifier "x"
+	)
+);
+("b", [],
+	Let ("x", Const 100,
+		Identifier "x"
+	)
+);
+("c", [],
+	New ("x", Const 10,
+		Let ("y", Identifier "x",
+			Operation (Add, Identifier "x", Identifier "y")
+		)
+	)
+);
+("d", [],
+	New ("x", Const 10,
+		Seq (
+			Asg (Identifier "x", Const 5),
+			Deref (Identifier "x")
+		)
+	)
+)
+]

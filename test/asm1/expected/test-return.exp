@@ -1,0 +1,12 @@
+[
+("a", [],
+	Return (Const 5)
+);
+("b", [],
+	New ("x", Const 5,
+		New ("y", Const 10,
+			Return (Operation (Geq, Identifier "y", Const 5))
+		)
+	)
+)
+]

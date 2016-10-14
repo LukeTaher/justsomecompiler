@@ -1,0 +1,25 @@
+/*
+	Tests assignment
+*/
+
+a(){
+	int x = 5;
+	x
+}
+
+b(){
+	const int x = 100;
+	x
+}
+
+c(){
+	int x = 10;
+	const int y = x;
+	x+y
+}
+
+d(){
+	int x = 10;
+	x = 5;
+	~x
+}

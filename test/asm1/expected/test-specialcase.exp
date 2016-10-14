@@ -1,0 +1,14 @@
+[
+("main", [],
+	New ("x", Const 5,
+		New ("y", Const 10,
+			Asg (Let ("z", Operation (Add, Deref (Identifier "x"), Deref (Identifier "y")),
+					If (Operation (Eq, Identifier "z", Const 0),
+						Identifier "x",
+						Identifier "y"
+					)
+				), Const 7)
+		)
+	)
+)
+]
