@@ -3,12 +3,15 @@ open Some_lex
 open Lexing
 open Printf
 
-let rec read_to_empty buf =
-	let s = read_line () in
-	if s = "" then buf
-	else (Buffer.add_string buf s;
-		  Buffer.add_string buf "\n";
-		  read_to_empty buf)
+let rec read_to_empty buf file =
+	try
+		let s = input_line file in
+			(Buffer.add_string buf s;
+			Buffer.add_string buf "\n";
+			read_to_empty buf file)
+	with End_of_file ->
+			close_in file;
+			buf
 
 let print_position lexbuf = 
 	let pos = lexbuf.lex_curr_p in
@@ -24,7 +27,8 @@ let parse_with_error lexbuf =
 							exit (-1)
 
 let _ =
-		read_to_empty (Buffer.create 1)
+		open_in Sys.argv.(1)
+		|> read_to_empty (Buffer.create 1)
 		|> Buffer.contents
 		|> Lexing.from_string
 		|> parse_with_error

@@ -3,7 +3,6 @@ open Some_types
 %}
 
 %token <int> CONST
-
 %token <string> IDENT
 
 %token IF
