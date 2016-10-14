@@ -6,16 +6,16 @@ open Printf
 let rec read_to_empty buf file =
 	try
 		let s = input_line file in
-			(Buffer.add_string buf s;
-			Buffer.add_string buf "\n";
-			read_to_empty buf file)
+			Buffer.add_string buf s;
+			read_to_empty buf file
 	with End_of_file ->
 			close_in file;
 			buf
 
 let print_position lexbuf = 
-	let pos = lexbuf.lex_curr_p in
-	eprintf "Pos %d:%d:%d\n" pos.pos_lnum pos.pos_bol pos.pos_cnum
+	let curpos = lexbuf.lex_curr_p.pos_cnum in
+	let token = Lexing.lexeme lexbuf in
+	eprintf "Unexpected token %s found at position %i \n" token curpos
 
 let parse_with_error lexbuf = 
 	try Some_par.top Some_lex.read lexbuf with 
