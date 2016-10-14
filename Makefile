@@ -1,5 +1,5 @@
 all:	
-	ocamlbuild -use-menhir -use-ocamlfind some_lang.native
+	ocamlbuild -use-menhir -use-ocamlfind -I src some_lang.native
 
 clean:	
 	rm -fr _build
