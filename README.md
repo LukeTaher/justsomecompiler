@@ -41,7 +41,7 @@ const int varName = 5         //constant declaration
 varName                       //variable
 ~x                            //dereferance variable
 
-5;                             //constant
+5                              //constant
 5 {math operation} x           //mathmatical expression
 x {bool operation} y           //boolean expression
 !(x)                           //boolean negation
@@ -57,5 +57,5 @@ and the following constructs:
 
 ```
 while(expression){instruction}                             //while loop
-if(expression){instruction}else(expression){instruction}   //if statement
+if(expression){instruction}else{instruction}               //if statement
 ```
