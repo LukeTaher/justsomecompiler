@@ -24,7 +24,7 @@ let eval_op op e e' =
 
 let rec eval_exp_left = function
 	| Identifier s -> s
-	| _ -> failwith "unable to match"
+	| _ -> failwith "unable to match LHS"
 
 let rec eval_exp = function
 	| Const i -> Integer i
@@ -35,6 +35,18 @@ let rec eval_exp = function
 					 Hashtbl.replace store left right;
 					 Unit ()
 	| Operation (op, e, e') -> eval_op op (eval_exp e) (eval_exp e')
+	| Negation e -> let exp = eval_exp e in (match exp with
+											| Bool a -> Bool (not a)
+											| _ -> failwith "unable to match")
+	| If (e, e', e'') -> let branch = eval_exp e in (match branch with
+													| Bool true -> eval_exp e'
+													| Bool false -> eval_exp e''
+													| _ -> failwith "unable to match")
+	| While (e, e') -> let branch = eval_exp e in (match branch with
+													| Bool true -> eval_exp e' |> ignore;
+																	eval_exp (While (e, e'))
+													| Bool false -> Unit ()
+													| _ -> failwith "unable to match")
 	| Deref Identifier s -> Hashtbl.find store s
 	| Return e -> eval_exp e
 	| _ -> failwith "unable to match"
@@ -51,3 +63,4 @@ let rec string_of_eval = function
 	| Bool b -> string_of_bool b
 	| Integer i -> string_of_int i
 	| _ -> "()"
+
