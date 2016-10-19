@@ -1,12 +1,15 @@
 open Some_types
 
+(* Store data type *)
 type value = 
 	| Bool of bool
 	| Integer of int 
 	| Unit of unit
 
+(* Store *)
 let store = Hashtbl.create 100
 
+(* Operation evaluation *)
 let eval_op op e e' =
 	match (op, e, e') with 
 	  | (Add, Integer e, Integer e') -> Integer (e+e')
@@ -22,6 +25,7 @@ let eval_op op e e' =
 	  | (Or, Bool e, Bool e') -> Bool (e||e')
 	  | _ -> failwith "Unable to match - Operator applied to invalid operands"
 
+(* Identifier evaluation *)
 let rec eval_exp_left = function
 	| Identifier s -> s
 	| If (e, e', e'') -> let branch = eval_exp e in (match branch with
@@ -30,6 +34,7 @@ let rec eval_exp_left = function
 												| _ -> failwith "Unable to match - If condition does not evaluate to type bool")
 	| _ -> failwith "Unable to match - LHS of assignment does not evaluate to identifier"
 
+(* Expression evaluation *)
 and eval_exp = function
 	| Const i -> Integer i
 	| Seq (e, e') -> eval_exp e |> ignore;
@@ -55,13 +60,16 @@ and eval_exp = function
 	| Return e -> eval_exp e
 	| _ -> failwith "Unable to match - expression could not be evaluated"
 
+(* Function evaluation *)
 let eval_fundef (name, ps, exp) = eval_exp exp
 
+(* Program evaluation *)
 let rec eval_prog = function
 	| [] -> Unit ()
 	| ("main", ps, exp)::xs -> eval_fundef ("main", ps, exp)
 	| x::xs -> eval_prog xs
 
+(* Result to string *)
 let rec string_of_eval = function
 	| Bool b -> string_of_bool b
 	| Integer i -> string_of_int i

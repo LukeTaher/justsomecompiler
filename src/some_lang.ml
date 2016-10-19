@@ -1,5 +1,6 @@
 open Some_types
 open Some_lex
+open Some_eval
 open Lexing
 open Printf
 
@@ -29,11 +30,20 @@ let parse_with_error lexbuf =
 							print_position lexbuf;
 							exit (-1)
 
-let _ =
-		open_in Sys.argv.(1)
-		|> read_to_empty (Buffer.create 1)
-		|> Buffer.contents
-		|> Lexing.from_string
-		|> parse_with_error
-		|> string_of_prog
-		|> printf "%s"
+let _ = match Sys.argv.(1) with
+		| "-v" -> open_in Sys.argv.(2)
+				|> read_to_empty (Buffer.create 1)
+				|> Buffer.contents
+				|> Lexing.from_string
+				|> parse_with_error
+				|> string_of_prog
+				|> printf "%s\n"
+		| _ -> open_in Sys.argv.(1)
+			|> read_to_empty (Buffer.create 1)
+			|> Buffer.contents
+			|> Lexing.from_string
+			|> parse_with_error
+			|> Some_eval.eval_prog
+			|> string_of_eval
+			|> printf "%s\n"
+		
