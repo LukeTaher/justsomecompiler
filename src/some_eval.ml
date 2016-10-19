@@ -24,9 +24,13 @@ let eval_op op e e' =
 
 let rec eval_exp_left = function
 	| Identifier s -> s
+	| If (e, e', e'') -> let branch = eval_exp e in (match branch with
+												| Bool true -> eval_exp_left e'
+												| Bool false -> eval_exp_left e''
+												| _ -> failwith "unable to match")
 	| _ -> failwith "unable to match LHS"
 
-let rec eval_exp = function
+and eval_exp = function
 	| Const i -> Integer i
 	| Seq (e, e') -> eval_exp e |> ignore;
 					 eval_exp e'
