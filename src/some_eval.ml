@@ -20,15 +20,15 @@ let eval_op op e e' =
 	  | (Geq, Integer e, Integer e') -> Bool (e>=e')
 	  | (And, Bool e, Bool e') -> Bool (e&&e') 
 	  | (Or, Bool e, Bool e') -> Bool (e||e')
-	  | _ -> failwith "unable to match"
+	  | _ -> failwith "Unable to match - Operator applied to invalid operands"
 
 let rec eval_exp_left = function
 	| Identifier s -> s
 	| If (e, e', e'') -> let branch = eval_exp e in (match branch with
 												| Bool true -> eval_exp_left e'
 												| Bool false -> eval_exp_left e''
-												| _ -> failwith "unable to match")
-	| _ -> failwith "unable to match LHS"
+												| _ -> failwith "Unable to match - If condition does not evaluate to type bool")
+	| _ -> failwith "Unable to match - LHS of assignment does not evaluate to identifier"
 
 and eval_exp = function
 	| Const i -> Integer i
@@ -41,20 +41,19 @@ and eval_exp = function
 	| Operation (op, e, e') -> eval_op op (eval_exp e) (eval_exp e')
 	| Negation e -> let exp = eval_exp e in (match exp with
 											| Bool a -> Bool (not a)
-											| _ -> failwith "unable to match")
+											| _ -> failwith "Unable to match - Negation condition does not evaluate to type bool")
 	| If (e, e', e'') -> let branch = eval_exp e in (match branch with
 													| Bool true -> eval_exp e'
 													| Bool false -> eval_exp e''
-													| _ -> failwith "unable to match")
+													| _ -> failwith "Unable to match - If condition does not evaluate to type bool")
 	| While (e, e') -> let branch = eval_exp e in (match branch with
 													| Bool true -> eval_exp e' |> ignore;
 																	eval_exp (While (e, e'))
 													| Bool false -> Unit ()
-													| _ -> failwith "unable to match")
+													| _ -> failwith "Unable to match - While condition does not evaluate to type bool")
 	| Deref Identifier s -> Hashtbl.find store s
 	| Return e -> eval_exp e
-	| _ -> failwith "unable to match"
-
+	| _ -> failwith "Unable to match - expression could not be evaluated"
 
 let eval_fundef (name, ps, exp) = eval_exp exp
 
