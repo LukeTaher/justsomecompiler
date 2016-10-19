@@ -1,5 +1,5 @@
 [
-("a", [],
+("main", [],
 	Seq (
 		Const 5,
 		Seq (

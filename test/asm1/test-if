@@ -2,7 +2,7 @@
 	Tests if statements
 */
 
-a(x){
+main(x){
 	if(x){
 		10
 	}

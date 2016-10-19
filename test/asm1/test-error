@@ -2,6 +2,6 @@
 	Test error messages
 */
 
-a(){
+main(){
 	5 +
 }

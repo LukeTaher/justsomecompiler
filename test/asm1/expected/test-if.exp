@@ -1,5 +1,5 @@
 [
-("a", [Identifier "x"],
+("main", [Identifier "x"],
 	If (Identifier "x",
 		Const 10,
 		Const 20

@@ -2,7 +2,7 @@
 	Tests integers
 */
 
-a(){
+main(){
 	5
 }
 

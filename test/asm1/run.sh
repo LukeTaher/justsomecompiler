@@ -5,7 +5,7 @@ rm -f asm1.log
 for test in test*
 do
 	rm -f "$test.out"
-	../../some_lang.native "$test" &> "$test.out"
+	../../some_lang.native -v "$test" &> "$test.out"
 	cmp -s "$test.out" "expected/$test.exp"
 	if [ $? -eq 0 ]; then
 		printf "✅  Passed $test\n"
