@@ -25,6 +25,13 @@ let eval_op op e e' =
 	  | (Or, Bool e, Bool e') -> Bool (e||e')
 	  | _ -> failwith "Unable to match - Operator applied to invalid operands"
 
+(* Type of value *)
+let bool_of_value = function
+	| Bool b -> b
+	| Integer 0 -> false
+	| Integer 1 -> true
+	| _ -> failwith "Unable to match - boolean condition does not evaluate to type bool"
+
 (* Identifier evaluation *)
 let rec eval_exp_left = function
 	| Identifier s -> s
@@ -47,16 +54,14 @@ and eval_exp = function
 	| Negation e -> let exp = eval_exp e in (match exp with
 											| Bool a -> Bool (not a)
 											| _ -> failwith "Unable to match - Negation condition does not evaluate to type bool")
-	| If (e, e', e'') -> let branch = eval_exp e in (match branch with
-													| Bool true -> eval_exp e'
-													| Bool false -> eval_exp e''
-													| _ -> failwith "Unable to match - If condition does not evaluate to type bool")
-	| While (e, e') -> let branch = eval_exp e in (match branch with
-													| Bool true -> eval_exp e' |> ignore;
-																	eval_exp (While (e, e'))
-													| Bool false -> Unit ()
-													| _ -> failwith "Unable to match - While condition does not evaluate to type bool")
-	| Deref Identifier s -> Hashtbl.find store s
+	| If (e, e', e'') -> let branch = bool_of_value (eval_exp e) in 
+							if branch then eval_exp e' else eval_exp e''
+	| While (e, e') -> let branch = bool_of_value (eval_exp e) in 
+							if branch then (let res = eval_exp e' in 
+										   	let rebranch = bool_of_value (eval_exp e) in
+										   		if rebranch then eval_exp (While (e, e')) else res)
+							else Unit ()
+	| Deref Identifier s -> (try Hashtbl.find store s with Not_found -> failwith ("Unable to match - Undefined variable "^s))
 	| Return e -> eval_exp e
 	| _ -> failwith "Unable to match - expression could not be evaluated"
 
