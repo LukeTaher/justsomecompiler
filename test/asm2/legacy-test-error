@@ -1,0 +1,7 @@
+/*
+	Test error messages
+*/
+
+main(){
+	5 +
+}

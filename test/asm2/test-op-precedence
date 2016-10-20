@@ -1,0 +1,7 @@
+/*
+	Tests evaluation of operation chaining and precedence
+*/
+main(){
+	i = 1 + 2 * 6 / (1 * 2) - 1;
+	~i
+}

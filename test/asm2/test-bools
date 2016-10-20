@@ -1,0 +1,29 @@
+/*
+	Tests evaluation of bools
+*/
+main(){
+	a = 100;
+	b = 100;
+	c = 1;
+
+	abool = ~a == ~b;
+	bbool = ~b <= ~c;
+	cbool = ~c > ~a;
+
+	if (~abool){
+		if(!(~bbool)){
+			if(!(~cbool)){
+				1
+			}
+			else{
+				0
+			}
+		}
+		else{
+			0
+		}
+	}
+	else{
+		0
+	}
+}

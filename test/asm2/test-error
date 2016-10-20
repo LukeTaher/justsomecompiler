@@ -1,0 +1,7 @@
+/*
+	Tests evaluation error of assignment
+*/
+main(){
+	x = 5;
+	7 = x
+}

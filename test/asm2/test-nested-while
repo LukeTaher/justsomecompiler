@@ -1,0 +1,19 @@
+/*
+	Tests evaluation of nested while loops
+*/
+main(){
+	x = 0;
+	i = 0;
+
+	while(~i < 10){
+		j = 0;
+		while(~j < 10){
+			j = ~j + 1;
+			x = ~x + ~j
+		};
+		i = ~i + 1;
+		x = ~x + ~i;
+		~x
+	}
+
+}

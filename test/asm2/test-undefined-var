@@ -1,0 +1,6 @@
+/*
+	Tests evaluation error of undefined variable
+*/
+main(){
+	x
+}

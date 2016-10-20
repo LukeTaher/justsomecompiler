@@ -1,0 +1,22 @@
+/*
+	Tests evaluation of while to calculate factorials
+*/
+main(){
+	i = 0;
+	x = 10;
+
+	while(~i <= 10){ /* unit returned as result */
+		i = ~i + 1;
+		x = ~x * ~i 
+	};
+
+	i = 0;
+	x = 10;
+	
+	while(~i <= 9){ /* x returned as result */
+		i = ~i + 1;
+		x = ~x * ~i;
+		~x 
+	}
+
+}

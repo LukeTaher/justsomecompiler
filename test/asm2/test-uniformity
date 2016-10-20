@@ -1,0 +1,11 @@
+/*
+	Tests evaluation of uniform syntax
+*/
+main(){
+	f = 0;
+	g = 1;
+
+	if(~g > ~f){g}else{f} = 10;
+
+	~g
+}
