@@ -35,10 +35,17 @@ let bool_of_value = function
 (* Identifier evaluation *)
 let rec eval_exp_left = function
 	| Identifier s -> s
+	| Seq (e, e') -> eval_exp e |> ignore;
+				 	 eval_exp_left e'
 	| If (e, e', e'') -> let branch = eval_exp e in (match branch with
 												| Bool true -> eval_exp_left e'
 												| Bool false -> eval_exp_left e''
 												| _ -> failwith "Unable to match - If condition does not evaluate to type bool")
+	| While (e, e') -> let branch = bool_of_value (eval_exp e) in 
+						if branch then (let res = eval_exp_left e' in 
+									   	let rebranch = bool_of_value (eval_exp e) in
+									   		if rebranch then eval_exp_left (While (e, e')) else res)
+						else failwith "Unable to match - LHS of assignment does not evaluate to identifier"
 	| _ -> failwith "Unable to match - LHS of assignment does not evaluate to identifier"
 
 (* Expression evaluation *)

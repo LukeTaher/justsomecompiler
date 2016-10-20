@@ -79,25 +79,17 @@ fundef:
 
 (* expressions - function contents *)
 exp:
-	| e = sexp 					{e}
-	| e = sexp; SEMCO; f = exp 		{Seq(e, f)}
+	| e = stmt 					{e}
+	| e = stmt; SEMCO; f = exp 		{Seq(e, f)}
 	| d = def 					{d}
 	| RETURN; v = def			{Return(v)}
-	| RETURN; e = sexp 			{Return(e)}
+	| RETURN; e = stmt 			{Return(e)}
 
-(* subexpressions - expression contents *)
-sexp:
-	| st = stmt 				{st}
-	| c = cstruct 				{c}
-
-(* constructs - subexpression contents *)
-cstruct:
-	| WHILE; LBRACK; v = value; RBRACK; LBRACE; e = exp; RBRACE	{While(v, e)}
-
-(* statements - subexpression contents *)
+(* statements - expression contents *)
 stmt:
 	| v = value; ASG; tt = stmt	{Asg(v, tt)}
 	| v = value 					{v}
+
 
 (* values - statement contents *)
 value:
@@ -144,3 +136,4 @@ apps:
 	| PINT; LBRACK; v = value; RBRACK 							{Printint v}
 	| IF; LBRACK; v = value; RBRACK; LBRACE; e = exp; RBRACE;
 	  ELSE; LBRACE; f = exp; RBRACE 								{If(v, e, f)}
+	| WHILE; LBRACK; v = value; RBRACK; LBRACE; e = exp; RBRACE	{While(v, e)}
