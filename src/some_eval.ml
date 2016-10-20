@@ -5,9 +5,18 @@ type value =
 	| Bool of bool
 	| Integer of int 
 	| Unit of unit
+	| Pointer of string
 
 (* Store *)
 let store = Hashtbl.create 100
+
+(* Store fetch *)
+let rec store_fetch key =
+	let value = (try Hashtbl.find store key 
+				 with Not_found -> failwith ("Unable to match - Undefined variable "^key)) 
+	in match value with
+	| Pointer key -> store_fetch key
+	| _ -> value
 
 (* Operation evaluation *)
 let eval_op op e e' =
@@ -51,6 +60,7 @@ let rec eval_exp_left = function
 (* Expression evaluation *)
 and eval_exp = function
 	| Const i -> Integer i
+	| Identifier key -> store_fetch key |> ignore; Pointer key
 	| Seq (e, e') -> eval_exp e |> ignore;
 					 eval_exp e'
 	| Asg (e, e') -> let left = eval_exp_left e in
@@ -68,7 +78,7 @@ and eval_exp = function
 										   	let rebranch = bool_of_value (eval_exp e) in
 										   		if rebranch then eval_exp (While (e, e')) else res)
 							else Unit ()
-	| Deref Identifier s -> (try Hashtbl.find store s with Not_found -> failwith ("Unable to match - Undefined variable "^s))
+	| Deref Identifier key -> store_fetch key
 	| Return e -> eval_exp e
 	| _ -> failwith "Unable to match - expression could not be evaluated"
 
