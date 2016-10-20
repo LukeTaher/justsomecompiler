@@ -7,7 +7,9 @@ A compiler developed in OCaml with OCamllex and Menhir for the Compiler Construc
 ## Usage
 Compile with `make` clean with `make clean`
 
-Run on a given file with `./some_lang.native [filename]` to print AST
+Run on a given file with `./some_lang.native [filename]` to evaluate
+
+Run on a given file with `./some_lang.native -v [filename]` to print AST
 
 ## Tests
 
