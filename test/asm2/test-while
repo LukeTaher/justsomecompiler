@@ -1,22 +1,19 @@
 /*
-	Tests evaluation of while to calculate factorials
+	Tests evaluation of nested while loops
 */
 main(){
+	x = 0;
 	i = 0;
-	x = 10;
 
-	while(~i <= 10){ /* unit returned as result */
+	while(~i < 10){
+		j = 0;
+		while(~j < 10){
+			j = ~j + 1;
+			x = ~x + ~j
+		};
 		i = ~i + 1;
-		x = ~x * ~i 
-	};
-
-	i = 0;
-	x = 10;
-	
-	while(~i <= 9){ /* x returned as result */
-		i = ~i + 1;
-		x = ~x * ~i;
-		~x 
+		x = ~x + ~i;
+		~x
 	}
 
 }

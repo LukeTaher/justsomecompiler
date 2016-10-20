@@ -4,6 +4,7 @@
 main(){
 	aint = 1;
 	bbool = 1 == 1;
-	cunit = if(~bbool){aint = 1}else{aint = 1};
+	ppointer = bbool;
+	cunit = if(~ppointer){aint = 1}else{aint = 1};
 	~cunit
 }
