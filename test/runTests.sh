@@ -22,6 +22,6 @@ if [ -f test.log ]; then
 		printf "\n===== ❌  Testing complete  ❌ =====\n\n"
 		printf "❗  Tests failed - see test/test.log for more\n\n"
 else
-		printf "\n===== 👏  Testing complete 👏  =====\n\n"
+		printf "\n===== 🔥💯  Testing complete 🔥💯  =====\n\n"
 		printf "✅  All tests passed\n\n"
 fi
