@@ -2,7 +2,7 @@
 
 rm -f asm2.log
 
-printf "> Running compatible legacy tests\n\n"
+printf "> Running compatible asm1 tests in evaluation mode\n\n"
 for test in legacy*
 do
 	rm -f "$test.out"
