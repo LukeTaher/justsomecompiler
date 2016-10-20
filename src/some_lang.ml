@@ -37,7 +37,7 @@ let _ = match Sys.argv.(1) with
 				|> Lexing.from_string
 				|> parse_with_error
 				|> string_of_prog
-				|> printf "%s\n"
+				|> printf "%s"
 		| _ -> open_in Sys.argv.(1)
 			|> read_to_empty (Buffer.create 1)
 			|> Buffer.contents
@@ -46,4 +46,3 @@ let _ = match Sys.argv.(1) with
 			|> Some_eval.eval_prog
 			|> string_of_eval
 			|> printf "%s\n"
-		
