@@ -25,7 +25,7 @@ do
 	fi
 done
 
-printf "\n> Running asm2 tests\n\n"
+printf "\n> Running asm2 evaluation tests\n\n"
 for test in test*
 do
 	rm -f "$test.out"
