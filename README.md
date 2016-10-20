@@ -1,3 +1,6 @@
+### Assignment 2 Notes
+Support for bool, int and pointer var types
+
 ## About
 A compiler developed in OCaml with OCamllex and Menhir for the Compiler Construction module at the University of Birmingham. Intended to mimick a C-like syntax.
 
