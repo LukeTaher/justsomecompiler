@@ -1,22 +1,45 @@
 open Some_types
+open Printf
 
 (* Store data type *)
 type value = 
 	| Bool of bool
-	| Integer of int 
+	| Integer of int
+	| Address of int
 	| Unit of unit
-	| Pointer of string
+
+(* Result to string *)
+let rec string_of_eval = function
+	| Bool b -> string_of_bool b
+	| Integer i -> string_of_int i
+	| Address a -> string_of_int a
+	| _ -> "()"
 
 (* Store *)
 let store = Hashtbl.create 100
 
 (* Store fetch *)
-let rec store_fetch key =
-	let value = (try Hashtbl.find store key 
-				 with Not_found -> failwith ("Unable to match - Undefined variable "^key)) 
-	in match value with
-	| Pointer key -> store_fetch key
-	| _ -> value
+let rec store_fetch key = 
+	try Hashtbl.find store key 
+				 with Not_found -> failwith ("Unable to match - Address out of bounds")
+
+(* Adress generation *)
+let addr = ref 0
+let newref () = addr:=!addr+1; !addr
+
+(* Environment lookup *)
+let rec lookup env s =
+	match env with
+	| (s',Address(a))::env -> if s = s' then store_fetch (Address a) else lookup env s
+	| (s',v)::env -> if s = s' then v else lookup env s
+	| _ -> failwith ("Unable to match - Undefined value "^s)
+
+(* Address lookup *)
+let rec lookup_addr env s =
+	match env with
+	| (s', Address(a))::env -> if s = s' then Address a else lookup_addr env s
+	| _::env -> lookup_addr env s
+	| _ -> failwith ("Unable to match - Value "^s^" is unaddressable")
 
 (* Operation evaluation *)
 let eval_op op e e' =
@@ -42,58 +65,61 @@ let bool_of_value = function
 	| _ -> failwith "Unable to match - boolean condition does not evaluate to type bool"
 
 (* Identifier evaluation *)
-let rec eval_exp_left = function
+let rec eval_exp_left env = function
 	| Identifier s -> s
-	| Seq (e, e') -> eval_exp e |> ignore;
-				 	 eval_exp_left e'
-	| If (e, e', e'') -> let branch = eval_exp e in (match branch with
-												| Bool true -> eval_exp_left e'
-												| Bool false -> eval_exp_left e''
+	| Seq (e, e') -> eval_exp env e |> ignore;
+				 	 eval_exp_left env e'
+	| If (e, e', e'') -> let branch = eval_exp env e in (match branch with
+												| Bool true -> eval_exp_left env e'
+												| Bool false -> eval_exp_left env e''
 												| _ -> failwith "Unable to match - If condition does not evaluate to type bool")
-	| While (e, e') -> let branch = bool_of_value (eval_exp e) in 
-						if branch then (let res = eval_exp_left e' in 
-									   	let rebranch = bool_of_value (eval_exp e) in
-									   		if rebranch then eval_exp_left (While (e, e')) else res)
+	| While (e, e') -> let branch = bool_of_value (eval_exp env e) in 
+						if branch then (let res = eval_exp_left env e' in 
+									   	let rebranch = bool_of_value (eval_exp env e) in
+									   		if rebranch then eval_exp_left env (While (e, e')) else res)
 						else failwith "Unable to match - LHS of assignment does not evaluate to identifier"
 	| _ -> failwith "Unable to match - LHS of assignment does not evaluate to identifier"
 
 (* Expression evaluation *)
-and eval_exp = function
+and eval_exp env = function
 	| Const i -> Integer i
-	| Identifier key -> store_fetch key |> ignore; Pointer key
-	| Seq (e, e') -> eval_exp e |> ignore;
-					 eval_exp e'
-	| Asg (e, e') -> let left = eval_exp_left e in
-					 let right = eval_exp e' in
-					 Hashtbl.replace store left right;
+	| Printint e -> (eval_exp env e) |> string_of_eval |> printf "%s\n"; Unit ()
+	| Let (s, e, e') -> let v = eval_exp env e in
+							eval_exp ((s, v)::env) e'
+	| New (s, e, e') -> let v = eval_exp env e in
+						let addr = Address(newref ()) in
+						Hashtbl.replace store addr v;
+						let v' = eval_exp ((s, addr)::env) e' in
+						Hashtbl.remove store addr;
+						v'
+	| Identifier s -> lookup env s |> ignore; lookup_addr env s
+	| Seq (e, e') -> eval_exp env e |> ignore;
+					 eval_exp env e'
+	| Asg (e, e') -> let left = eval_exp_left env e in
+					 let right = eval_exp env e' in
+					 Hashtbl.replace store (lookup_addr env left) right;
 					 Unit ()
-	| Operation (op, e, e') -> eval_op op (eval_exp e) (eval_exp e')
-	| Negation e -> let exp = eval_exp e in (match exp with
+	| Operation (op, e, e') -> eval_op op (eval_exp env e) (eval_exp env e')
+	| Negation e -> let exp = eval_exp env e in (match exp with
 											| Bool a -> Bool (not a)
 											| _ -> failwith "Unable to match - Negation condition does not evaluate to type bool")
-	| If (e, e', e'') -> let branch = bool_of_value (eval_exp e) in 
-							if branch then eval_exp e' else eval_exp e''
-	| While (e, e') -> let branch = bool_of_value (eval_exp e) in 
-							if branch then (let res = eval_exp e' in 
-										   	let rebranch = bool_of_value (eval_exp e) in
-										   		if rebranch then eval_exp (While (e, e')) else res)
+	| If (e, e', e'') -> let branch = bool_of_value (eval_exp env e) in 
+							if branch then eval_exp env e' else eval_exp env e''
+	| While (e, e') -> let branch = bool_of_value (eval_exp env e) in 
+							if branch then (let res = eval_exp env e' in 
+										   	let rebranch = bool_of_value (eval_exp env e) in
+										   		if rebranch then eval_exp env (While (e, e')) else res)
 							else Unit ()
-	| Deref Identifier key -> store_fetch key
-	| Return e -> eval_exp e
+	| Deref e -> store_fetch (eval_exp env e)
+	| Return e -> eval_exp env e
 	| _ -> failwith "Unable to match - expression could not be evaluated"
 
 (* Function evaluation *)
-let eval_fundef (name, ps, exp) = eval_exp exp
+let eval_fundef (name, ps, exp) env = eval_exp env exp
 
 (* Program evaluation *)
 let rec eval_prog = function
 	| [] -> Unit ()
-	| ("main", ps, exp)::xs -> eval_fundef ("main", ps, exp)
+	| ("main", ps, exp)::xs -> eval_fundef ("main", ps, exp) []
 	| x::xs -> eval_prog xs
-
-(* Result to string *)
-let rec string_of_eval = function
-	| Bool b -> string_of_bool b
-	| Integer i -> string_of_int i
-	| _ -> "()"
 
