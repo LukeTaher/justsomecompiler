@@ -15,12 +15,15 @@ let rec string_of_eval = function
 	| Address a -> string_of_int a
 	| _ -> "()"
 
+(* Functions *)
+let funs = Hashtbl.create 100
+
 (* Store *)
-let store = Hashtbl.create 100
+let store = ref (Hashtbl.create 100)
 
 (* Store fetch *)
 let rec store_fetch key = 
-	try Hashtbl.find store key 
+	try Hashtbl.find !store key 
 				 with Not_found -> failwith ("Unable to match - Address out of bounds")
 
 (* Adress generation *)
@@ -88,16 +91,17 @@ and eval_exp env = function
 							eval_exp ((s, v)::env) e'
 	| New (s, e, e') -> let v = eval_exp env e in
 						let addr = Address(newref ()) in
-						Hashtbl.replace store addr v;
+						Hashtbl.replace !store addr v;
 						let v' = eval_exp ((s, addr)::env) e' in
-						Hashtbl.remove store addr;
+						Hashtbl.remove !store addr;
 						v'
+	| Application (s, args) -> eval_fundef (s, List.map (eval_exp env) args)
 	| Identifier s -> lookup env s |> ignore; lookup_addr env s
 	| Seq (e, e') -> eval_exp env e |> ignore;
 					 eval_exp env e'
 	| Asg (e, e') -> let left = eval_exp_left env e in
 					 let right = eval_exp env e' in
-					 Hashtbl.replace store (lookup_addr env left) right;
+					 Hashtbl.replace !store (lookup_addr env left) right;
 					 Unit ()
 	| Operation (op, e, e') -> eval_op op (eval_exp env e) (eval_exp env e')
 	| Negation e -> let exp = eval_exp env e in (match exp with
@@ -115,11 +119,20 @@ and eval_exp env = function
 	| _ -> failwith "Unable to match - expression could not be evaluated"
 
 (* Function evaluation *)
-let eval_fundef (name, ps, exp) env = eval_exp env exp
+and eval_fundef (name, argvs) =
+	let (args, exp) = try Hashtbl.find funs name 
+				 	  with Not_found -> failwith ("Unable to match - Function definition " ^ name ^ " not found") in
+	let tempStore = Hashtbl.copy !store in
+	Hashtbl.clear !store;
+	let env = List.map2 (fun arg argv -> let addr = Address(newref ()) in
+								Hashtbl.replace !store addr argv;
+								(arg, addr)) args argvs; in
+	let res = eval_exp env exp in
+	store := tempStore;
+	res
 
 (* Program evaluation *)
 let rec eval_prog = function
-	| [] -> Unit ()
-	| ("main", ps, exp)::xs -> eval_fundef ("main", ps, exp) []
-	| x::xs -> eval_prog xs
+	| (name, args, exp)::prog -> Hashtbl.replace funs name (args, exp); eval_prog prog
+	| _ -> eval_fundef ("main", [])
 

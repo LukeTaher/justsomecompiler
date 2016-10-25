@@ -74,7 +74,7 @@ top:
 
 (* functions - program contents *)
 fundef:
-	| s = IDENT; LBRACK; ss = separated_list(COMMA, value); RBRACK; 
+	| s = IDENT; LBRACK; ss = separated_list(COMMA, IDENT); RBRACK; 
 		  LBRACE; e = exp; RBRACE										{(s, ss, e)} 
 
 (* expressions - function contents *)
@@ -131,7 +131,7 @@ boolexp:
 
 (* application expressions - value contents *)
 apps:
-	| s = IDENT; LBRACK; ss = separated_list(COMMA, value); RBRACK	{Application(Identifier s, ss)}
+	| s = IDENT; LBRACK; ss = separated_list(COMMA, value); RBRACK	{Application(s, ss)}
 	| RINT; LBRACK; RBRACK 										    {Readint}
 	| PINT; LBRACK; v = value; RBRACK 							{Printint v}
 	| IF; LBRACK; v = value; RBRACK; LBRACE; e = exp; RBRACE;

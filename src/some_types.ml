@@ -13,7 +13,7 @@ type expression =
   | Deref of expression
   | Operation of biop * expression * expression (* e + e *)
   | Negation of expression (* !e *)
-  | Application of expression * expression list (* e(e) *)
+  | Application of string * expression list (* e(e) *)
   | Const of int (* 7 *)
   | Readint (* read_int() *)
   | Printint of expression (* print_int(e) *)
@@ -22,7 +22,7 @@ type expression =
   | New of string * expression * expression (* const int x = e; e *)
   | Return of expression (* return e *)
 
-type fundef = string * expression list * expression (* x(e){e} *)
+type fundef = string * string list * expression (* x(e){e} *)
 
 type program = fundef list
 
@@ -75,8 +75,8 @@ let rec string_of_expression expr depth =
                                 string_of_expression e (depth+1) ^ ", " ^
                                 string_of_expression e' (depth+1) ^ ")"
     | Negation e -> "Negation (" ^ string_of_expression e (depth+1) ^ ")"
-    | Application (e, e') -> "Application (" ^ string_of_expression e (depth+1) ^ ", [" ^
-                               string_of_params e' ^ "])"
+    | Application (s, e) -> "Application (" ^ s ^ ", [" ^
+                               string_of_params e ^ "])"
     | Readint -> "Readint"
     | Printint e -> "Printint (" ^ string_of_expression e (depth+1) ^ ")"
     | Identifier s -> "Identifier \"" ^ s ^ "\""
@@ -99,7 +99,12 @@ and string_of_params = function
   | [x] -> string_of_expression x 0
   | x::xs -> string_of_expression x 0 ^ "; " ^ string_of_params xs
 
-let string_of_fundef (name, ps, exp) = "(\"" ^ name ^ "\", [" ^ string_of_params ps ^
+let rec string_of_args = function
+  | [] -> ""
+  | [x] -> x
+  | x::xs -> x ^ "; " ^ string_of_args xs
+
+let string_of_fundef (name, ps, exp) = "(\"" ^ name ^ "\", [" ^ string_of_args ps ^
                                        "],\n\t" ^ string_of_expression exp 1 ^
                                        "\n)"
 
