@@ -77,6 +77,7 @@ let rec eval_exp env = function
 					 eval_exp env e'
 	| Asg (e, e') -> let left = eval_exp env e in
 					 let right = eval_exp env e' in
+					 store_fetch left |> ignore;
 					 Hashtbl.replace !store left right;
 					 Unit ()
 	| Operation (op, e, e') -> eval_op op (eval_exp env e) (eval_exp env e')
