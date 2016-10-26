@@ -7,6 +7,7 @@ type value =
 	| Integer of int
 	| Address of int
 	| Unit of unit
+	| Function of string list * expression
 
 (* Result to string *)
 let rec string_of_eval = function
@@ -34,7 +35,7 @@ let newref () = addr:=!addr+1; !addr
 let rec lookup env s =
 	match env with
 	| (s',v)::env -> if s = s' then v else lookup env s
-	| _ -> failwith ("Unable to match - Undefined value "^s)
+	| _ -> failwith ("Unable to match - Value "^s^" not found")
 
 (* Operation evaluation *)
 let eval_op op e e' =
@@ -71,10 +72,11 @@ let rec eval_exp env = function
 						let v' = eval_exp ((s, addr)::env) e' in
 						Hashtbl.remove !store addr;
 						v'
-	| Application (s, args) -> eval_fundef (s, List.map (eval_exp env) args)
+	| Application (s, args) -> eval_fundef (s, List.map (eval_exp env) args) env
 	| Identifier s -> lookup env s
 	| Seq (e, e') -> eval_exp env e |> ignore;
 					 eval_exp env e'
+	| Lambda (args, e') -> Function (args, e')
 	| Asg (e, e') -> let left = eval_exp env e in
 					 let right = eval_exp env e' in
 					 store_fetch left |> ignore;
@@ -96,9 +98,9 @@ let rec eval_exp env = function
 	| _ -> failwith "Unable to match - expression could not be evaluated"
 
 (* Function evaluation *)
-and eval_fundef (name, argvs) =
+and eval_fundef (name, argvs) env =
 	let (args, exp) = try Hashtbl.find funs name 
-				 	  with Not_found -> failwith ("Unable to match - Function definition " ^ name ^ " not found") in
+				 	  with Not_found -> lambda_fetch name env in
 	let tempStore = Hashtbl.copy !store in
 	Hashtbl.clear !store;
 	let env = List.map2 (fun arg argv -> let addr = Address(newref ()) in
@@ -108,8 +110,16 @@ and eval_fundef (name, argvs) =
 	store := tempStore;
 	res
 
+(* Lambda evaluation *)
+and lambda_fetch name env =
+	let v = try Hashtbl.find !store (lookup env name) 
+				 with Not_found -> lookup env name in
+	match v with
+	| Function (args, e) -> (args, e)
+	| _ -> failwith ("Unable to match - Function definition "^ name ^" not found")
+
 (* Program evaluation *)
 let rec eval_prog = function
 	| (name, args, exp)::prog -> Hashtbl.replace funs name (args, exp); eval_prog prog
-	| _ -> eval_fundef ("main", [])
+	| _ -> eval_fundef ("main", []) []
 

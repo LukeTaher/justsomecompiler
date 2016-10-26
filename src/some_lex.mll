@@ -22,8 +22,10 @@ rule read =
 	| "print_int"  {PINT}
 	| "const int"  {CVAR}
 	| "int"		   {VAR}
+	| "fun"		   {FUN}
 	| "return"	   {RETURN}
 	| string 	   {IDENT (Lexing.lexeme lexbuf)}
+	| "->"		   {ARROW}
 	| "&&"		   {AND}
 	| "||" 		   {OR}
 	| "=="		   {EQ}

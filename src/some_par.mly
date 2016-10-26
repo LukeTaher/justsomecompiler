@@ -19,6 +19,8 @@ open Some_types
 %token CVAR
 %token VAR
 %token ASG
+%token FUN
+%token ARROW
 
 (* Operators *)
 %token EQ
@@ -137,3 +139,4 @@ apps:
 	| IF; LBRACK; v = value; RBRACK; LBRACE; e = exp; RBRACE;
 	  ELSE; LBRACE; f = exp; RBRACE 								{If(v, e, f)}
 	| WHILE; LBRACK; v = value; RBRACK; LBRACE; e = exp; RBRACE	{While(v, e)}
+	| FUN; ss = separated_list(COMMA, IDENT); ARROW; LBRACK; e = exp; RBRACK  			{Lambda(ss, e)}

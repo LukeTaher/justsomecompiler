@@ -14,6 +14,7 @@ type expression =
   | Operation of biop * expression * expression (* e + e *)
   | Negation of expression (* !e *)
   | Application of string * expression list (* e(e) *)
+  | Lambda of string list * expression
   | Const of int (* 7 *)
   | Readint (* read_int() *)
   | Printint of expression (* print_int(e) *)
@@ -77,6 +78,8 @@ let rec string_of_expression expr depth =
     | Negation e -> "Negation (" ^ string_of_expression e (depth+1) ^ ")"
     | Application (s, e) -> "Application (" ^ s ^ ", [" ^
                                string_of_params e ^ "])"
+    | Lambda (s, e) -> "Lambda (" ^ string_of_args s ^ ", " ^
+                          string_of_expression e (depth+1) ^ ")"
     | Readint -> "Readint"
     | Printint e -> "Printint (" ^ string_of_expression e (depth+1) ^ ")"
     | Identifier s -> "Identifier \"" ^ s ^ "\""
@@ -99,7 +102,7 @@ and string_of_params = function
   | [x] -> string_of_expression x 0
   | x::xs -> string_of_expression x 0 ^ "; " ^ string_of_params xs
 
-let rec string_of_args = function
+and string_of_args = function
   | [] -> ""
   | [x] -> x
   | x::xs -> x ^ "; " ^ string_of_args xs
