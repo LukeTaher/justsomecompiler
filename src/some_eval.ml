@@ -12,7 +12,7 @@ type value =
 let rec string_of_eval = function
 	| Bool b -> string_of_bool b
 	| Integer i -> string_of_int i
-	| Address a -> string_of_int a
+	| Address a -> "Address: " ^ string_of_int a
 	| _ -> "()"
 
 (* Functions *)
@@ -33,16 +33,8 @@ let newref () = addr:=!addr+1; !addr
 (* Environment lookup *)
 let rec lookup env s =
 	match env with
-	| (s',Address(a))::env -> if s = s' then store_fetch (Address a) else lookup env s
 	| (s',v)::env -> if s = s' then v else lookup env s
 	| _ -> failwith ("Unable to match - Undefined value "^s)
-
-(* Address lookup *)
-let rec lookup_addr env s =
-	match env with
-	| (s', Address(a))::env -> if s = s' then Address a else lookup_addr env s
-	| _::env -> lookup_addr env s
-	| _ -> failwith ("Unable to match - Value "^s^" is unaddressable")
 
 (* Operation evaluation *)
 let eval_op op e e' =
@@ -67,24 +59,8 @@ let bool_of_value = function
 	| Integer 1 -> true
 	| _ -> failwith "Unable to match - boolean condition does not evaluate to type bool"
 
-(* Identifier evaluation *)
-let rec eval_exp_left env = function
-	| Identifier s -> s
-	| Seq (e, e') -> eval_exp env e |> ignore;
-				 	 eval_exp_left env e'
-	| If (e, e', e'') -> let branch = eval_exp env e in (match branch with
-												| Bool true -> eval_exp_left env e'
-												| Bool false -> eval_exp_left env e''
-												| _ -> failwith "Unable to match - If condition does not evaluate to type bool")
-	| While (e, e') -> let branch = bool_of_value (eval_exp env e) in 
-						if branch then (let res = eval_exp_left env e' in 
-									   	let rebranch = bool_of_value (eval_exp env e) in
-									   		if rebranch then eval_exp_left env (While (e, e')) else res)
-						else failwith "Unable to match - LHS of assignment does not evaluate to identifier"
-	| _ -> failwith "Unable to match - LHS of assignment does not evaluate to identifier"
-
 (* Expression evaluation *)
-and eval_exp env = function
+let rec eval_exp env = function
 	| Const i -> Integer i
 	| Printint e -> (eval_exp env e) |> string_of_eval |> printf "%s\n"; Unit ()
 	| Let (s, e, e') -> let v = eval_exp env e in
@@ -96,12 +72,12 @@ and eval_exp env = function
 						Hashtbl.remove !store addr;
 						v'
 	| Application (s, args) -> eval_fundef (s, List.map (eval_exp env) args)
-	| Identifier s -> lookup env s |> ignore; lookup_addr env s
+	| Identifier s -> lookup env s
 	| Seq (e, e') -> eval_exp env e |> ignore;
 					 eval_exp env e'
-	| Asg (e, e') -> let left = eval_exp_left env e in
+	| Asg (e, e') -> let left = eval_exp env e in
 					 let right = eval_exp env e' in
-					 Hashtbl.replace !store (lookup_addr env left) right;
+					 Hashtbl.replace !store left right;
 					 Unit ()
 	| Operation (op, e, e') -> eval_op op (eval_exp env e) (eval_exp env e')
 	| Negation e -> let exp = eval_exp env e in (match exp with
