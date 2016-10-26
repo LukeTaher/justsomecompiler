@@ -1,0 +1,28 @@
+/*
+	Tests function scope errors
+*/
+
+/*
+	Tests shadowing
+*/
+
+main(){
+	var x = 5;
+	print(~x);
+	const x = 10;
+	print(x);
+	var x = fun x -> (~x+1);
+	x(if(a(x(1))){
+		var x = 98;
+		const x = 99;
+		x
+	}
+	else{
+		0
+	}) == 100
+}
+
+a(num){
+	x = 1;
+	if(x == 1){1}else{0}
+}

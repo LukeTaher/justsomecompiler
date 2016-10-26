@@ -1,0 +1,8 @@
+/*
+	Tests scope errors
+*/
+
+main(){
+	var x = (const y = 2; y+2);
+	y
+}

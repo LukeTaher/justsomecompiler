@@ -1,0 +1,23 @@
+/*
+	Tests functions
+*/
+
+main(){
+	var x = 1;
+	x = math(~x);
+	~x
+}
+
+math(num){
+	var x = sq(~num);
+	x = sqroot(~x, ~num);
+	~x
+}
+
+sq(num){
+	~num*~num
+}
+
+sqroot(num, base){
+	~num/~base
+}

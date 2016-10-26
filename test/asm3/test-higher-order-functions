@@ -1,0 +1,17 @@
+/*
+	Tests higher order functions
+*/
+
+main(){
+	var x = 1;
+	x = sqroot(sq(~x), ~x);
+	~x
+}
+
+sq(num){
+	~num*~num
+}
+
+sqroot(num, base){
+	~num/~base
+}

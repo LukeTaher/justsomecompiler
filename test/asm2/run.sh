@@ -26,7 +26,6 @@ do
 done
 
 printf "\n> Running asm2 evaluation tests\n\n"
-# printf "❕  Disabled\n"
 for test in test*
 do
 	rm -f "$test.out"

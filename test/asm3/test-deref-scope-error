@@ -1,0 +1,12 @@
+/*
+	Tests dereferencing scope error 
+*/
+
+main(){
+	var x = 2;
+	a()
+}
+
+a(){
+	~x
+}
