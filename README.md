@@ -1,8 +1,9 @@
-### Assignment 2 Notes
-- Support for bool, int and pointer var types 
-- Evaluation errors
+### Assignment 3 Notes
+- Recursion
+- Higher order functions
+- Lambda functions
 
-*see asm2 test script for examples*
+*see asm3 test script for examples*
 
 ## About
 A compiler developed in OCaml with OCamllex and Menhir for the Compiler Construction module at the University of Birmingham. Intended to mimick a C-like syntax.
@@ -44,8 +45,8 @@ instruction; instruction
 Instructions can be in the form of the following expressions:
 
 ```
-int varName = 5               //variable declaration
-const int varName = 5         //constant declaration
+var varName = 5               //variable declaration
+const varName = 5             //constant declaration
 varName                       //variable
 ~x                            //dereferance variable
 
@@ -56,7 +57,7 @@ x {bool operation} y           //boolean expression
 
 someFunctionName(arguments)    //function call
 read_int()                     //read int
-print_int(instruction)         //print int
+print(instruction)             //print expression
 
 return instruction             //return
 ```
@@ -66,4 +67,5 @@ and the following constructs:
 ```
 while(expression){instruction}                             //while loop
 if(expression){instruction}else{instruction}               //if statement
+fun var1, var2, ..., varn -> (instruction)                 //lambda function 
 ```
