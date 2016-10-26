@@ -126,7 +126,7 @@ and eval_fundef (name, argvs) =
 	Hashtbl.clear !store;
 	let env = List.map2 (fun arg argv -> let addr = Address(newref ()) in
 								Hashtbl.replace !store addr argv;
-								(arg, addr)) args argvs; in
+								(arg, addr)) args argvs in
 	let res = eval_exp env exp in
 	store := tempStore;
 	res
