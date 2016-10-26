@@ -1,9 +1,9 @@
 [
 ("a", [],
-	Application (Identifier "b", [])
+	Application (b, [])
 );
 ("b", [],
-	Application (Identifier "c", [])
+	Application (c, [])
 );
 ("c", [],
 	Readint

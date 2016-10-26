@@ -1,14 +1,14 @@
 [
-("iterativeBisection", [Identifier "f"; Identifier "a"; Identifier "b"; Identifier "TOL"; Identifier "NMAX"],
+("iterativeBisection", [f; a; b; TOL; NMAX],
 	New ("N", Const 1,
 		Seq (
 			While (Operation (Leq, Identifier "N", Identifier "NMAX"),
 				New ("c", Operation (Div, Operation (Add, Identifier "a", Identifier "b"), Const 2),
-					If (Operation (Or, Operation (Eq, Application (Identifier "f", [Identifier "c"]), Const 0), Operation (Le, Operation (Div, Operation (Sub, Identifier "b", Identifier "a"), Const 2), Identifier "TOL")),
+					If (Operation (Or, Operation (Eq, Application (f, [Identifier "c"]), Const 0), Operation (Le, Operation (Div, Operation (Sub, Identifier "b", Identifier "a"), Const 2), Identifier "TOL")),
 						Printint (Identifier "c"),
 						Seq (
 							Asg (Identifier "N", Operation (Add, Identifier "N", Const 1)),
-							If (Operation (Or, Operation (And, Operation (Geq, Application (Identifier "f", [Identifier "c"]), Const 0), Operation (Geq, Application (Identifier "f", [Identifier "a"]), Const 0)), Operation (And, Operation (Leq, Application (Identifier "f", [Identifier "c"]), Const 0), Operation (Leq, Application (Identifier "f", [Identifier "a"]), Const 0))),
+							If (Operation (Or, Operation (And, Operation (Geq, Application (f, [Identifier "c"]), Const 0), Operation (Geq, Application (f, [Identifier "a"]), Const 0)), Operation (And, Operation (Leq, Application (f, [Identifier "c"]), Const 0), Operation (Leq, Application (f, [Identifier "a"]), Const 0))),
 								Asg (Identifier "a", Identifier "c"),
 								Asg (Identifier "b", Identifier "c")
 							)
@@ -16,22 +16,22 @@
 					)
 				)
 			),
-			Application (Identifier "failed", [])
+			Application (failed, [])
 		)
 	)
 );
-("recursiveBisection", [Identifier "f"; Identifier "a"; Identifier "b"; Identifier "TOL"; Identifier "NMAX"],
+("recursiveBisection", [f; a; b; TOL; NMAX],
 	If (Operation (Le, Identifier "NMAX", Const 0),
-		Application (Identifier "failed", []),
+		Application (failed, []),
 		New ("c", Operation (Div, Operation (Add, Identifier "a", Identifier "b"), Const 2),
-			If (Operation (Or, Operation (Eq, Application (Identifier "f", [Identifier "c"]), Const 0), Operation (Le, Operation (Div, Operation (Sub, Identifier "b", Identifier "a"), Const 2), Identifier "TOL")),
+			If (Operation (Or, Operation (Eq, Application (f, [Identifier "c"]), Const 0), Operation (Le, Operation (Div, Operation (Sub, Identifier "b", Identifier "a"), Const 2), Identifier "TOL")),
 				Printint (Identifier "c"),
 				Seq (
-					If (Operation (Or, Operation (And, Operation (Geq, Application (Identifier "f", [Identifier "c"]), Const 0), Operation (Geq, Application (Identifier "f", [Identifier "a"]), Const 0)), Operation (And, Operation (Leq, Application (Identifier "f", [Identifier "c"]), Const 0), Operation (Leq, Application (Identifier "f", [Identifier "a"]), Const 0))),
+					If (Operation (Or, Operation (And, Operation (Geq, Application (f, [Identifier "c"]), Const 0), Operation (Geq, Application (f, [Identifier "a"]), Const 0)), Operation (And, Operation (Leq, Application (f, [Identifier "c"]), Const 0), Operation (Leq, Application (f, [Identifier "a"]), Const 0))),
 						Asg (Identifier "a", Identifier "c"),
 						Asg (Identifier "b", Identifier "c")
 					),
-					Printint (Application (Identifier "recursiveBisection", [Identifier "f"; Identifier "a"; Identifier "b"; Identifier "TOL"; Operation (Sub, Identifier "NMAX", Const 1)]))
+					Printint (Application (recursiveBisection, [Identifier "f"; Identifier "a"; Identifier "b"; Identifier "TOL"; Operation (Sub, Identifier "NMAX", Const 1)]))
 				)
 			)
 		)

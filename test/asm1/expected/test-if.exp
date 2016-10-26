@@ -1,11 +1,11 @@
 [
-("main", [Identifier "x"],
+("main", [x],
 	If (Identifier "x",
 		Const 10,
 		Const 20
 	)
 );
-("b", [Identifier "x"],
+("b", [x],
 	Asg (Identifier "x", If (Operation (Ge, Identifier "x", Const 0),
 			Const 5,
 			Const 6

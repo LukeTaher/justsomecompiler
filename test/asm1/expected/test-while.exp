@@ -1,10 +1,10 @@
 [
-("testfun", [Identifier "x"],
+("testfun", [x],
 	While (Operation (Ge, Identifier "x", Const 5),
 		Asg (Identifier "x", Operation (Sub, Identifier "x", Const 5))
 	)
 );
-("testfun", [Identifier "x"],
+("testfun", [x],
 	While (Operation (Ge, Identifier "x", Const 10),
 		While (Operation (Ge, Identifier "x", Const 20),
 			Asg (Identifier "x", Operation (Sub, Identifier "x", Const 5))
