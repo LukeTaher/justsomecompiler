@@ -1,1 +1,1 @@
-Fatal error: exception Failure("Unable to match - Undefined variable x")
+Fatal error: exception Failure("Unable to match - Value x not found")

@@ -2,9 +2,9 @@
 	Tests evaluation of types
 */
 main(){
-	aint = 1;
-	bbool = 1 == 1;
-	ppointer = bbool;
-	cunit = if(~ppointer){aint = 1}else{aint = 1};
+	var aint = 1;
+	var bbool = 1 == 1;
+	var ppointer = bbool;
+	var cunit = if(~~ppointer){aint = 1}else{aint = 1};
 	~cunit
 }

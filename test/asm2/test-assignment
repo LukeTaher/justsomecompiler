@@ -2,6 +2,6 @@
 	Tests evaluation of assignment
 */
 main(){
-	g = 100;
+	var g = 100;
 	~g
 }

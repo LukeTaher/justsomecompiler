@@ -2,6 +2,6 @@
 	Tests evaluation error of assignment
 */
 main(){
-	x = 5;
+	var x = 5;
 	7 = x
 }

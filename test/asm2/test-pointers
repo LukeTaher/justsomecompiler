@@ -1,6 +1,6 @@
 main(){
-	x = 7;
-	y = x;
-	z = y;
-	~z
+	var x = 7;
+	var y = x;
+	var z = y;
+	~~~z
 }

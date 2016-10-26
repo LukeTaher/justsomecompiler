@@ -4,14 +4,14 @@
 main(){
 
 	/* series values */
-	f = 0;
-	g = 1;
+	var f = 0;
+	var g = 1;
 
 	/* iterator */
-	i = 0;
+	var i = 0;
 
 	while(~i < 12){
-		temp = ~f;
+		var temp = ~f;
 		f = ~f + ~g;
 		g = ~temp;
 		i = ~i + 1;
