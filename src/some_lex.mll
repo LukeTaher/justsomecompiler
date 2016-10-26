@@ -19,9 +19,9 @@ rule read =
 	| "else" 	   {ELSE}
 	| "while"      {WHILE}
 	| "read_int"   {RINT}
-	| "print_int"  {PINT}
-	| "const int"  {CVAR}
-	| "int"		   {VAR}
+	| "print"  {PINT}
+	| "const"  {CVAR}
+	| "var"		   {VAR}
 	| "fun"		   {FUN}
 	| "return"	   {RETURN}
 	| string 	   {IDENT (Lexing.lexeme lexbuf)}

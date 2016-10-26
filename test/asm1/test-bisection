@@ -3,11 +3,11 @@
 */
 
 iterativeBisection(f, a, b, TOL, NMAX){
-	int N = 1;
+	var N = 1;
 	while(N <= NMAX){ /* limit iterations to prevent infinite loop */
-		int c = (a+b)/2; /* new midpoint */
+		var c = (a+b)/2; /* new midpoint */
 		if(f(c) == 0 ||  (b-a)/2 < TOL){ /* solution found */
-			print_int(c)
+			print(c)
 		}
 		else{
 			N = N+1; /* increment step counter */
@@ -26,9 +26,9 @@ recursiveBisection(f, a, b, TOL, NMAX){
 	if(NMAX < 0){ /* limit iterations to prevent infinite recursion */
 		failed()
 	}else{
-		int c = (a+b)/2; /* new midpoint */
+		var c = (a+b)/2; /* new midpoint */
 		if(f(c) == 0 || (b-a)/2 < TOL){ /* solution found */
-			print_int(c)
+			print(c)
 		}
 		else{
 			if((f(c) >= 0 && f(a) >= 0) || (f(c) <= 0 && f(a) <= 0)){ /* new interval */
@@ -37,7 +37,7 @@ recursiveBisection(f, a, b, TOL, NMAX){
 			else{
 				b = c
 			};
-			print_int(recursiveBisection(f, a, b, TOL, NMAX-1)) /* decrement N */
+			print(recursiveBisection(f, a, b, TOL, NMAX-1)) /* decrement N */
 		}
 	}
 }
