@@ -15,14 +15,14 @@ a(){
 }
 
 b(num){
-	~num
+	num
 }
 
 c(x){
-	if(~x < 100){
-		c(~x + 1)
+	if(x < 100){
+		c(x + 1)
 	}
 	else{
-		~x
+		x
 	}
 }

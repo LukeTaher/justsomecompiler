@@ -7,7 +7,7 @@ main(){
 	print(~x);
 	const x = 10;
 	print(x);
-	var x = fun x -> (~x+1);
+	var x = fun x -> (x+1);
 	x(if(a(x(1))){
 		var x = 98;
 		const x = 99;

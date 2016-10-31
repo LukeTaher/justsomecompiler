@@ -9,9 +9,9 @@ main(){
 }
 
 sq(num){
-	~num*~num
+	num*num
 }
 
 sqroot(num, base){
-	~num/~base
+	num/base
 }

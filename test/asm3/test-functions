@@ -9,15 +9,15 @@ main(){
 }
 
 math(num){
-	var x = sq(~num);
-	x = sqroot(~x, ~num);
+	var x = sq(num);
+	x = sqroot(~x, num);
 	~x
 }
 
 sq(num){
-	~num*~num
+	num*num
 }
 
 sqroot(num, base){
-	~num/~base
+	num/base
 }
