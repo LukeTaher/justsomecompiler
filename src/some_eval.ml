@@ -1,14 +1,6 @@
 open Some_types
 open Printf
 
-(* Store data type *)
-type value = 
-	| Bool of bool
-	| Integer of int
-	| Address of int
-	| Unit of unit
-	| Function of string list * expression
-
 (* Result to string *)
 let rec string_of_eval = function
 	| Bool b -> string_of_bool b
@@ -23,8 +15,8 @@ let funs = Hashtbl.create 100
 let store = ref (Hashtbl.create 100)
 
 (* Store fetch *)
-let rec store_fetch key = 
-	try Hashtbl.find !store key 
+let rec store_fetch key =
+	try Hashtbl.find !store key
 				 with Not_found -> failwith ("Unable to match - Address out of bounds")
 
 (* Adress generation *)
@@ -39,17 +31,17 @@ let rec lookup env s =
 
 (* Operation evaluation *)
 let eval_op op e e' =
-	match (op, e, e') with 
+	match (op, e, e') with
 	  | (Add, Integer e, Integer e') -> Integer (e+e')
-	  | (Sub, Integer e, Integer e') -> Integer (e-e') 
-	  | (Mul, Integer e, Integer e') -> Integer (e*e') 
+	  | (Sub, Integer e, Integer e') -> Integer (e-e')
+	  | (Mul, Integer e, Integer e') -> Integer (e*e')
 	  | (Div, Integer e, Integer e') -> Integer (e/e')
 	  | (Eq, Integer e, Integer e') -> Bool (e==e')
-	  | (Le, Integer e, Integer e') -> Bool (e<e') 
-	  | (Ge, Integer e, Integer e') -> Bool (e>e') 
-	  | (Leq, Integer e, Integer e') -> Bool (e<=e') 
+	  | (Le, Integer e, Integer e') -> Bool (e<e')
+	  | (Ge, Integer e, Integer e') -> Bool (e>e')
+	  | (Leq, Integer e, Integer e') -> Bool (e<=e')
 	  | (Geq, Integer e, Integer e') -> Bool (e>=e')
-	  | (And, Bool e, Bool e') -> Bool (e&&e') 
+	  | (And, Bool e, Bool e') -> Bool (e&&e')
 	  | (Or, Bool e, Bool e') -> Bool (e||e')
 	  | _ -> failwith "Unable to match - Operator applied to invalid operands"
 
@@ -86,10 +78,10 @@ let rec eval_exp env = function
 	| Negation e -> let exp = eval_exp env e in (match exp with
 											| Bool a -> Bool (not a)
 											| _ -> failwith "Unable to match - Negation condition does not evaluate to type bool")
-	| If (e, e', e'') -> let branch = bool_of_value (eval_exp env e) in 
+	| If (e, e', e'') -> let branch = bool_of_value (eval_exp env e) in
 							if branch then eval_exp env e' else eval_exp env e''
-	| While (e, e') -> let branch = bool_of_value (eval_exp env e) in 
-							if branch then (let res = eval_exp env e' in 
+	| While (e, e') -> let branch = bool_of_value (eval_exp env e) in
+							if branch then (let res = eval_exp env e' in
 										   	let rebranch = bool_of_value (eval_exp env e) in
 										   		if rebranch then eval_exp env (While (e, e')) else res)
 							else Unit ()
@@ -99,20 +91,18 @@ let rec eval_exp env = function
 
 (* Function evaluation *)
 and eval_fundef (name, argvs) env =
-	let (args, exp) = try Hashtbl.find funs name 
+	let (args, exp) = try Hashtbl.find funs name
 				 	  with Not_found -> lambda_fetch name env in
 	let tempStore = Hashtbl.copy !store in
 	Hashtbl.clear !store;
-	let env = List.map2 (fun arg argv -> let addr = Address(newref ()) in
-								Hashtbl.replace !store addr argv;
-								(arg, addr)) args argvs in
+	let env = List.map2 (fun arg argv -> (arg, argv)) args argvs in
 	let res = eval_exp env exp in
 	store := tempStore;
 	res
 
 (* Lambda evaluation *)
 and lambda_fetch name env =
-	let v = try Hashtbl.find !store (lookup env name) 
+	let v = try Hashtbl.find !store (lookup env name)
 				 with Not_found -> lookup env name in
 	match v with
 	| Function (args, e) -> (args, e)
@@ -122,4 +112,3 @@ and lambda_fetch name env =
 let rec eval_prog = function
 	| (name, args, exp)::prog -> Hashtbl.replace funs name (args, exp); eval_prog prog
 	| _ -> eval_fundef ("main", []) []
-

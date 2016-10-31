@@ -19,7 +19,7 @@ type expression =
   | Readint (* read_int() *)
   | Printint of expression (* print_int(e) *)
   | Identifier of string (* x *)
-  | Let of string * expression * expression (* const int x = e; e *) 
+  | Let of string * expression * expression (* const int x = e; e *)
   | New of string * expression * expression (* const int x = e; e *)
   | Return of expression (* return e *)
 
@@ -27,47 +27,53 @@ type fundef = string * string list * expression (* x(e){e} *)
 
 type program = fundef list
 
-
+(* Store data type *)
+type value =
+	| Bool of bool
+	| Integer of int
+	| Address of int
+	| Unit of unit
+	| Function of string list * expression
 
 (* AST pretty print *)
 
 let rec tab_string = function | 0 -> "" | x -> "\t" ^ tab_string (x-1)
 
 let string_of_biop = function
-  | Add -> "Add" 
-  | Sub -> "Sub" 
-  | Mul -> "Mul" 
+  | Add -> "Add"
+  | Sub -> "Sub"
+  | Mul -> "Mul"
   | Div -> "Div"
   | Eq -> "Eq"
-  | Le -> "Le"  
-  | Ge -> "Ge"  
-  | Leq -> "Leq" 
+  | Le -> "Le"
+  | Ge -> "Ge"
+  | Leq -> "Leq"
   | Geq -> "Geq"
-  | And -> "And" 
+  | And -> "And"
   | Or -> "Or"
 
-let rec string_of_expression expr depth = 
+let rec string_of_expression expr depth =
   match expr with
     | Const i -> "Const " ^ string_of_int i
-    | Seq (e, e') ->  "Seq (\n" ^ 
-                      tab_string (depth+1) ^ 
+    | Seq (e, e') ->  "Seq (\n" ^
+                      tab_string (depth+1) ^
                       string_of_expression e (depth+1) ^ ",\n" ^
-                      tab_string (depth+1) ^ 
+                      tab_string (depth+1) ^
                       string_of_expression e'(depth+1) ^ "\n" ^
-                      tab_string (depth) ^ 
+                      tab_string (depth) ^
                       ")"
     | While (e, e') ->  "While (" ^
                         string_of_expression e (depth+1) ^ ",\n" ^
-                        tab_string (depth+1) ^ 
+                        tab_string (depth+1) ^
                         string_of_expression e' (depth+1) ^ "\n" ^
-                        tab_string (depth) ^ 
+                        tab_string (depth) ^
                         ")"
     | If (e, e', e'') -> "If (" ^ string_of_expression e (depth+1) ^ ",\n" ^
-                         tab_string (depth+1) ^ 
+                         tab_string (depth+1) ^
                          string_of_expression e' (depth+1) ^ ",\n" ^
-                         tab_string (depth+1) ^ 
+                         tab_string (depth+1) ^
                          string_of_expression e'' (depth+1) ^ "\n" ^
-                         tab_string (depth) ^ 
+                         tab_string (depth) ^
                          ")"
     | Asg (e, e') -> "Asg (" ^ string_of_expression e (depth+1) ^ ", " ^
                                string_of_expression e' (depth+1) ^ ")"
@@ -83,17 +89,17 @@ let rec string_of_expression expr depth =
     | Readint -> "Readint"
     | Printint e -> "Printint (" ^ string_of_expression e (depth+1) ^ ")"
     | Identifier s -> "Identifier \"" ^ s ^ "\""
-    | Let (s, e, e') -> "Let (\"" ^ s ^ "\", " ^ 
+    | Let (s, e, e') -> "Let (\"" ^ s ^ "\", " ^
                         string_of_expression e (depth+1) ^ ",\n" ^
-                        tab_string (depth+1) ^ 
+                        tab_string (depth+1) ^
                         string_of_expression e' (depth+1) ^ "\n" ^
-                        tab_string (depth) ^ 
+                        tab_string (depth) ^
                         ")"
-    | New (s, e, e') -> "New (\"" ^ s ^ "\", " ^ 
+    | New (s, e, e') -> "New (\"" ^ s ^ "\", " ^
                         string_of_expression e (depth+1) ^ ",\n" ^
-                        tab_string (depth+1) ^ 
+                        tab_string (depth+1) ^
                         string_of_expression e' (depth+1) ^ "\n" ^
-                        tab_string (depth) ^ 
+                        tab_string (depth) ^
                         ")"
     | Return e -> "Return (" ^ string_of_expression e (depth+1) ^ ")"
 
@@ -117,4 +123,3 @@ let rec string_of_prog' = function
   | x::xs -> string_of_fundef x ^ ";\n" ^ string_of_prog' xs
 
 let string_of_prog fs = "[\n" ^ string_of_prog' fs ^ "\n]\n"
-
