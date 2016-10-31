@@ -52,7 +52,7 @@ let rec opt_exp env = function
                                       Hashtbl.remove !store addr;
                                       v')
                         | _ as v -> New (s, v, (opt_exp env e'))) *)
-  | Application (s, args) -> if !cur_fun = s then Application (s, List.map (opt_exp env) args)
+  | Application (s, args) -> if !cur_fun == s then Application (s, List.map (opt_exp env) args)
                              else opt_fundef (s, List.map (opt_exp env) args)
 	| Identifier s -> (match (lookup env s) with
                     | Some x -> opt_exp env x
