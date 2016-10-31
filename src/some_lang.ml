@@ -1,6 +1,7 @@
 open Some_types
 open Some_lex
 open Some_eval
+open Some_opt
 open Lexing
 open Printf
 
@@ -15,14 +16,14 @@ let rec read_to_empty buf file =
 			buf
 
 (* print error *)
-let print_position lexbuf = 
+let print_position lexbuf =
 	let curpos = lexbuf.lex_curr_p.pos_cnum in
 	let token = Lexing.lexeme lexbuf in
 	eprintf "Unexpected token %s found at position %i \n" token curpos
 
 (* parse *)
-let parse_with_error lexbuf = 
-	try Some_par.top Some_lex.read lexbuf with 
+let parse_with_error lexbuf =
+	try Some_par.top Some_lex.read lexbuf with
 		| SyntaxError msg -> prerr_string (msg ^ ": ");
 							 print_position lexbuf;
 							 exit (-1)
@@ -38,11 +39,28 @@ let _ = match Sys.argv.(1) with
 				|> parse_with_error
 				|> string_of_prog
 				|> printf "%s"
+		| "-ov" | "-vo" -> open_in Sys.argv.(2)
+				|> read_to_empty (Buffer.create 1)
+				|> Buffer.contents
+				|> Lexing.from_string
+				|> parse_with_error
+				|> opt_prog
+				|> string_of_prog
+				|> printf "%s"
+		| "-o" -> open_in Sys.argv.(2)
+			|> read_to_empty (Buffer.create 1)
+			|> Buffer.contents
+			|> Lexing.from_string
+			|> parse_with_error
+			|> opt_prog
+			|> eval_prog
+			|> string_of_eval
+			|> printf "%s\n"
 		| _ -> open_in Sys.argv.(1)
 			|> read_to_empty (Buffer.create 1)
 			|> Buffer.contents
 			|> Lexing.from_string
 			|> parse_with_error
-			|> Some_eval.eval_prog
+			|> eval_prog
 			|> string_of_eval
 			|> printf "%s\n"
