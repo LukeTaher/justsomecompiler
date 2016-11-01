@@ -13,16 +13,16 @@ do
 		printf "✅  Passed $test\n"
 	else
 		printf "❗  Failed $test\n"
-		printf "===== Failed $test =====\n\n" >> ../asm4/asm2.log
-		printf "===== Input:\n" >> ../asm4/asm2.log
-		cat "$test" >> ../asm4/asm2.log
-		printf "===== Expected:\n" >> ../asm4/asm2.log
-		cat "expected/$test.exp" >> ../asm4/asm2.log
-		printf "\n===== Output:\n" >> ../asm4/asm2.log
-		cat "$test.out" >> ../asm4/asm2.log
-		printf "\n===== Error:\n" >> ../asm4/asm2.log
-		cmp "$test.out" "expected/$test.exp" >> ../asm4/asm2.log
-		printf "\n\n" >> ../asm4/asm2.log
+		printf "===== Failed $test =====\n\n" >> ../asm4/asm4.log
+		printf "===== Input:\n" >> ../asm4/asm4.log
+		cat "$test" >> ../asm4/asm4.log
+		printf "===== Expected:\n" >> ../asm4/asm4.log
+		cat "expected/$test.exp" >> ../asm4/asm4.log
+		printf "\n===== Output:\n" >> ../asm4/asm4.log
+		cat "$test.out" >> ../asm4/asm4.log
+		printf "\n===== Error:\n" >> ../asm4/asm4.log
+		cmp "$test.out" "expected/$test.exp" >> ../asm4/asm4.log
+		printf "\n\n" >> ../asm4/asm4.log
 	fi
 done
 
@@ -36,16 +36,16 @@ do
 		printf "✅  Passed $test\n"
 	else
 		printf "❗  Failed $test\n"
-		printf "===== Failed $test =====\n\n" >> ../asm4/asm2.log
-		printf "===== Input:\n" >> ../asm4/asm2.log
-		cat "$test" >> ../asm4/asm2.log
-		printf "===== Expected:\n" >> ../asm4/asm2.log
-		cat "expected/$test.exp" >> ../asm4/asm2.log
-		printf "\n===== Output:\n" >> ../asm4/asm2.log
-		cat "$test.out" >> ../asm4/asm2.log
-		printf "\n===== Error:\n" >> ../asm4/asm2.log
-		cmp "$test.out" "expected/$test.exp" >> ../asm4/asm2.log
-		printf "\n\n" >> ../asm4/asm2.log
+		printf "===== Failed $test =====\n\n" >> ../asm4/asm4.log
+		printf "===== Input:\n" >> ../asm4/asm4.log
+		cat "$test" >> ../asm4/asm4.log
+		printf "===== Expected:\n" >> ../asm4/asm4.log
+		cat "expected/$test.exp" >> ../asm4/asm4.log
+		printf "\n===== Output:\n" >> ../asm4/asm4.log
+		cat "$test.out" >> ../asm4/asm4.log
+		printf "\n===== Error:\n" >> ../asm4/asm4.log
+		cmp "$test.out" "expected/$test.exp" >> ../asm4/asm4.log
+		printf "\n\n" >> ../asm4/asm4.log
 	fi
 done
 
