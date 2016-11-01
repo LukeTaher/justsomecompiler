@@ -40,7 +40,7 @@ let eval_prog_stat ast = let t0 = Sys.time() in
 											eval_prog ast |> ignore;
 											let t = Sys.time() in
 	 										("Evaluation Steps: " ^ (string_of_int !count) ^
-											"\nExecution time: " ^ (string_of_float (t -. t0)))
+											"\nExecution Time: " ^ (string_of_float (t -. t0)))
 
 let _ = match Sys.argv.(1) with
 		| "-v" -> open_in Sys.argv.(2)
