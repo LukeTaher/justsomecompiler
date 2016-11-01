@@ -31,55 +31,44 @@ let parse_with_error lexbuf =
 							print_position lexbuf;
 							exit (-1)
 
+let parse buf = read_to_empty (Buffer.create 1) buf
+						|> Buffer.contents
+						|> Lexing.from_string
+						|> parse_with_error
+
+let eval_prog_stat ast = let t0 = Sys.time() in
+											eval_prog ast |> ignore;
+											let t = Sys.time() in
+	 										("Evaluation Steps: " ^ (string_of_int !count) ^
+											"\nExecution time: " ^ (string_of_float (t -. t0)))
+
 let _ = match Sys.argv.(1) with
 		| "-v" -> open_in Sys.argv.(2)
-				|> read_to_empty (Buffer.create 1)
-				|> Buffer.contents
-				|> Lexing.from_string
-				|> parse_with_error
+				|> parse
 				|> string_of_prog
 				|> printf "%s"
 		| "-s" -> open_in Sys.argv.(2)
-			|> read_to_empty (Buffer.create 1)
-			|> Buffer.contents
-			|> Lexing.from_string
-			|> parse_with_error
-			|> eval_prog
-			|> ignore;
-				 string_of_int !count
+			|> parse
+			|> eval_prog_stat
 			|> printf "%s\n"
 		| "-so" | "-os" -> open_in Sys.argv.(2)
-			|> read_to_empty (Buffer.create 1)
-			|> Buffer.contents
-			|> Lexing.from_string
-			|> parse_with_error
+			|> parse
 			|> opt_prog
-			|> eval_prog
-			|> ignore;
-				 string_of_int !count
+			|> eval_prog_stat
 			|> printf "%s\n"
 		| "-ov" | "-vo" -> open_in Sys.argv.(2)
-				|> read_to_empty (Buffer.create 1)
-				|> Buffer.contents
-				|> Lexing.from_string
-				|> parse_with_error
+				|> parse
 				|> opt_prog
 				|> string_of_prog
 				|> printf "%s"
 		| "-o" -> open_in Sys.argv.(2)
-			|> read_to_empty (Buffer.create 1)
-			|> Buffer.contents
-			|> Lexing.from_string
-			|> parse_with_error
+			|> parse
 			|> opt_prog
 			|> eval_prog
 			|> string_of_eval
 			|> printf "%s\n"
 		| _ -> open_in Sys.argv.(1)
-			|> read_to_empty (Buffer.create 1)
-			|> Buffer.contents
-			|> Lexing.from_string
-			|> parse_with_error
+			|> parse
 			|> eval_prog
 			|> string_of_eval
 			|> printf "%s\n"
