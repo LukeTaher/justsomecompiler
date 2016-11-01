@@ -1,23 +1,7 @@
 open Some_types
 
-(* type env_var =
-  | Exp of expression
-  | Address of int
-*)
 (* Functions *)
 let funs = Hashtbl.create 100
-
-(* Store *)
-(*let store = ref (Hashtbl.create 100)
-
-(* Store fetch *)
-let rec store_fetch key =
-	try Some (Hashtbl.find !store key)
-				 with Not_found -> None
-
-(* Adress generation *)
-let addr = ref 0
-let newref () = addr:=!addr+1; !addr *)
 
 let cur_fun = ref ""
 
@@ -27,6 +11,7 @@ let rec lookup env s =
 	| (s',v)::env -> if s = s' then Some v else lookup env s
 	| _ -> None
 
+(* Operation optimisation *)
 let opt_op op e e' =
 	match (op, e, e') with
 	  | (Add, Const e, Const e') -> Const (e+e')
@@ -42,6 +27,7 @@ let opt_op op e e' =
 	  | (Or, Const e, Const e') -> if e > 0 || e' > 0 then Const 1 else Const 0
     | (op, e, e') -> Operation (op, e, e')
 
+(* Expression optimisation *)
 let rec opt_exp env = function
   | Operation (op, e, e') -> opt_op op (opt_exp env e) (opt_exp env e')
   | Let (s, e, e') -> let v = opt_exp env e in
@@ -50,13 +36,6 @@ let rec opt_exp env = function
                         | Identifier s' -> opt_exp ((s, v)::env) e'
                         | _ as v -> Let (s, v, (opt_exp env e')))
   | New (s, e, e') -> let v = opt_exp env e in New (s, v, (opt_exp env e'))
-                      (* (match v with
-                        | Const i -> (let addr = Address(newref ()) in
-                                      Hashtbl.replace !store addr v;
-                                      let v' = opt_exp ((s, addr)::env) e' in
-                                      Hashtbl.remove !store addr;
-                                      v')
-                        | _ as v -> New (s, v, (opt_exp env e'))) *)
   | Application (s, args) -> if !cur_fun == s then Application (s, List.map (opt_exp env) args)
                              else opt_fundef (s, List.map (opt_exp env) args)
 	| Identifier s -> (match (lookup env s) with
@@ -69,14 +48,6 @@ let rec opt_exp env = function
                    let right = opt_exp env e' in
                    Asg (left, right)
   | Negation e -> Negation (opt_exp env e)
-  (* | Deref e -> let v = opt_exp env e in
-              (match v with
-               | Identifier s -> (match (lookup env s) with
-                                  | Some Address a -> (match (store_fetch (Address a))
-                                                       with | Some Const x -> Const x
-                                                            | _ -> Deref v)
-                                  | _ -> Deref v)
-               | _ -> Deref v) *)
   | Return e -> Return (opt_exp env e)
   | Printint e -> Printint (opt_exp env e)
   | If (e, e', e'') -> let branch = (opt_exp env e) in
@@ -100,10 +71,12 @@ and opt_fundef (name, argvs) =
                       | _ -> Application (name, argvs)))
   with Not_found -> Application (name, argvs)
 
+(* Function table population *)
 let rec pop_funs = function
   | (name, (args:string list), exp)::prog -> Hashtbl.replace funs name (args, exp); pop_funs prog
   | [] -> ()
 
+(* Program Optimisation *)
 let rec opt_prog' = function
   | (name, args, exp)::prog -> cur_fun := name; (name, args, opt_exp [] exp)::(opt_prog' prog)
   | [] -> []
