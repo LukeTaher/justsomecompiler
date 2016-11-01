@@ -55,6 +55,7 @@ let bool_of_value = function
 (* Expression evaluation *)
 let rec eval_exp env = function
 	| Const i -> Integer i
+	| Readint -> Integer (read_int ())
 	| Printint e -> (eval_exp env e) |> string_of_eval |> printf "%s\n"; Unit ()
 	| Let (s, e, e') -> let v = eval_exp env e in
 							eval_exp ((s, v)::env) e'
@@ -87,7 +88,6 @@ let rec eval_exp env = function
 							else Unit ()
 	| Deref e -> store_fetch (eval_exp env e)
 	| Return e -> eval_exp env e
-	| _ -> failwith "Unable to match - expression could not be evaluated"
 
 (* Function evaluation *)
 and eval_fundef (name, argvs) env =
