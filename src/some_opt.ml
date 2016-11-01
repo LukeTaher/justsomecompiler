@@ -1,18 +1,22 @@
 open Some_types
 
+(* type env_var =
+  | Exp of expression
+  | Address of int
+*)
 (* Functions *)
 let funs = Hashtbl.create 100
 
 (* Store *)
-(* let store = ref (Hashtbl.create 100) *)
+(*let store = ref (Hashtbl.create 100)
 
 (* Store fetch *)
-(* let rec store_fetch key =
+let rec store_fetch key =
 	try Some (Hashtbl.find !store key)
-				 with Not_found -> None *)
+				 with Not_found -> None
 
 (* Adress generation *)
-(* let addr = ref 0
+let addr = ref 0
 let newref () = addr:=!addr+1; !addr *)
 
 let cur_fun = ref ""
@@ -42,7 +46,7 @@ let rec opt_exp env = function
   | Operation (op, e, e') -> opt_op op (opt_exp env e) (opt_exp env e')
   | Let (s, e, e') -> let v = opt_exp env e in
                       (match v with
-                        | Const i -> opt_exp ((s,v)::env) e'
+                        | Const i -> opt_exp ((s, v)::env) e'
                         | _ as v -> Let (s, v, (opt_exp env e')))
   | New (s, e, e') -> let v = opt_exp env e in New (s, v, (opt_exp env e'))
                       (* (match v with
@@ -65,9 +69,13 @@ let rec opt_exp env = function
                    Asg (left, right)
   | Negation e -> Negation (opt_exp env e)
   (* | Deref e -> let v = opt_exp env e in
-               (match (store_fetch v) with
-                | Some (Address a) -> Const a
-                | _ as v' -> v') *)
+              (match v with
+               | Identifier s -> (match (lookup env s) with
+                                  | Some Address a -> (match (store_fetch (Address a))
+                                                       with | Some Const x -> Const x
+                                                            | _ -> Deref v)
+                                  | _ -> Deref v)
+               | _ -> Deref v) *)
   | Return e -> Return (opt_exp env e)
   | Printint e -> Printint (opt_exp env e)
   | If (e, e', e'') -> let branch = (opt_exp env e) in
@@ -75,7 +83,9 @@ let rec opt_exp env = function
                        | Const 1 -> (opt_exp env e')
                        | Const 0 -> (opt_exp env e'')
                        | _ -> If (branch, (opt_exp env e'), (opt_exp env e'')))
-  | While (e, e') -> While ((opt_exp env e), (opt_exp env e'))
+  | While (e, e') -> let break = (opt_exp env e) in
+                     let op = (opt_exp env e') in
+                     While (break, If (break, op, If (break, op, If (break, op, Seq(op, op)))))
   | _ as exp -> exp
 
 (* Function optimisation *)
