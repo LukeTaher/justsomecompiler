@@ -1,6 +1,9 @@
 open Some_types
 open Printf
 
+(* Eval step count *)
+let count = ref 0
+
 (* Result to string *)
 let rec string_of_eval = function
 	| Bool b -> string_of_bool b
@@ -31,6 +34,7 @@ let rec lookup env s =
 
 (* Operation evaluation *)
 let eval_op op e e' =
+	count := !count + 1;
 	match (op, e, e') with
 	  | (Add, Integer e, Integer e') -> Integer (e+e')
 	  | (Sub, Integer e, Integer e') -> Integer (e-e')
@@ -53,7 +57,9 @@ let bool_of_value = function
 	| _ -> failwith "Unable to match - boolean condition does not evaluate to type bool"
 
 (* Expression evaluation *)
-let rec eval_exp env = function
+let rec eval_exp env exp =
+	count := !count + 1;
+	match exp with
 	| Const i -> Integer i
 	| Readint -> Integer (read_int ())
 	| Printint e -> (eval_exp env e) |> string_of_eval |> printf "%s\n"; Unit ()

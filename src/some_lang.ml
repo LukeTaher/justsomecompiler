@@ -39,6 +39,25 @@ let _ = match Sys.argv.(1) with
 				|> parse_with_error
 				|> string_of_prog
 				|> printf "%s"
+		| "-s" -> open_in Sys.argv.(2)
+			|> read_to_empty (Buffer.create 1)
+			|> Buffer.contents
+			|> Lexing.from_string
+			|> parse_with_error
+			|> eval_prog
+			|> ignore;
+				 string_of_int !count
+			|> printf "%s\n"
+		| "-so" | "-os" -> open_in Sys.argv.(2)
+			|> read_to_empty (Buffer.create 1)
+			|> Buffer.contents
+			|> Lexing.from_string
+			|> parse_with_error
+			|> opt_prog
+			|> eval_prog
+			|> ignore;
+				 string_of_int !count
+			|> printf "%s\n"
 		| "-ov" | "-vo" -> open_in Sys.argv.(2)
 				|> read_to_empty (Buffer.create 1)
 				|> Buffer.contents
