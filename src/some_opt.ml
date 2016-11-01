@@ -47,6 +47,7 @@ let rec opt_exp env = function
   | Let (s, e, e') -> let v = opt_exp env e in
                       (match v with
                         | Const i -> opt_exp ((s, v)::env) e'
+                        | Identifier s' -> opt_exp ((s, v)::env) e'
                         | _ as v -> Let (s, v, (opt_exp env e')))
   | New (s, e, e') -> let v = opt_exp env e in New (s, v, (opt_exp env e'))
                       (* (match v with
