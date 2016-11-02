@@ -1,0 +1,8 @@
+[
+("main", [],
+	If (Operation (Eq, Readint, Const 0),
+		Const 1,
+		Const 0
+	)
+)
+]

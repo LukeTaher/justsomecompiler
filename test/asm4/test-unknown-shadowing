@@ -1,0 +1,10 @@
+/*
+  Tests variable shadowing
+*/
+
+main(){
+  const x = 10;
+  const x = read_int();
+  const x = 1;
+  x
+}

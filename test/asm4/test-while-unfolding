@@ -1,0 +1,13 @@
+/*
+  Tests while loop unfolding
+*/
+
+main(){
+  var x = read_int();
+  while(~x < 500){
+    const y = ~x*10;
+    const z = y+90*10;
+    x = ~x + 1;
+    z
+  }
+}

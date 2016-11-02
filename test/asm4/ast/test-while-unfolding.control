@@ -1,0 +1,16 @@
+[
+("main", [],
+	New ("x", Readint,
+		While (Operation (Le, Deref (Identifier "x"), Const 500),
+			Let ("y", Operation (Mul, Deref (Identifier "x"), Const 10),
+				Let ("z", Operation (Add, Identifier "y", Operation (Mul, Const 90, Const 10)),
+					Seq (
+						Asg (Identifier "x", Operation (Add, Deref (Identifier "x"), Const 1)),
+						Identifier "z"
+					)
+				)
+			)
+		)
+	)
+)
+]

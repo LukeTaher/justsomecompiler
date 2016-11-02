@@ -1,0 +1,14 @@
+[
+("main", [],
+	Const 10
+);
+("a", [],
+	Const 5
+);
+("b", [x],
+	Identifier "x"
+);
+("c", [x; y],
+	Operation (Add, Identifier "x", Identifier "y")
+)
+]

@@ -1,0 +1,12 @@
+/*
+  Tests subexpression elimination
+*/
+
+main(){
+  const a = read_int();
+  const b = read_int();
+  const c = 5;
+  const x = a+b*a*b*c/a;
+  const y = a+b*a*b*c/a;
+  y+c
+}
