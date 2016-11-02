@@ -124,7 +124,7 @@ let rec opt_exp env = function
   | Application (s, args) -> if !cur_fun == s then Application (s, List.map (opt_exp env) args)
                              else opt_fundef (s, List.map (opt_exp env) args)
 	| Identifier s -> (match (lookup env s) with
-                    | Some x -> opt_exp env x
+                    | Some x -> x
                     | _ -> Identifier s)
   | Seq (e, e') -> let v = opt_exp env e in
                    let v' = opt_exp env e' in
@@ -150,7 +150,7 @@ and opt_fundef (name, argvs) =
   try
   (let (args, exp) = (Hashtbl.find funs name) in
                       (cur_fun := name;
-                      let res = elim_exp (opt_exp [] exp) in
+                      let res = elim_exp (opt_exp (List.map2 (fun x y -> (x, y)) args argvs) exp) in
                     	match res with
                       | Const i -> Const i
                       | _ -> Application (name, argvs)))
