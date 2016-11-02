@@ -1,15 +1,95 @@
 open Some_types
-
+open Printf
 (* Functions *)
 let funs = Hashtbl.create 100
 
+(* Current function *)
 let cur_fun = ref ""
+
+(* Var generation *)
+let addr = ref 0
+let newref () = addr:=!addr+1; !addr
 
 (* Environment lookup *)
 let rec lookup env s =
 	match env with
 	| (s',v)::env -> if s = s' then Some v else lookup env s
 	| _ -> None
+
+(* Find shadowed vars *)
+let rec shadow_check' = function
+  | Printint e -> shadow_check' e
+  | Let (s, e, e') -> s::(shadow_check' e')
+  | New (s, e, e') -> s::(shadow_check' e')
+  | Identifier s -> [s]
+  | Seq (e, e') -> shadow_check' e'
+  | Asg (e, e') -> shadow_check' e'
+  | If (e, e', e'') -> (shadow_check' e')@(shadow_check' e'')
+  | While (e, e') -> shadow_check' e'
+  | Return e -> shadow_check' e
+  | _ -> []
+
+(* Check if expression is shadowed *)
+let rec shadow_check term exp = let terms = shadow_check' term in
+                                let exps = shadow_check' exp in
+                                List.exists (fun x -> List.exists (fun y -> x = y) exps) terms
+
+(* Eliminate given expression *)
+let rec elim_exp' (name, term) = function
+  | Operation (op, e, e') as exp -> if exp = term then Identifier name
+                                    else Operation (op, (elim_exp' (name, term) e), (elim_exp' (name, term) e'))
+  | Printint e -> Printint (elim_exp' (name, term) e)
+  | Let (s, e, e') as exp -> if (shadow_check term (Identifier s)) then exp
+                              else Let (s, (elim_exp' (name, term) e), (elim_exp' (name, term) e'))
+  | New (s, e, e') as exp -> if (shadow_check term (Identifier s)) then exp
+                              else New (s, (elim_exp' (name, term) e), (elim_exp' (name, term) e'))
+  | Application (s, args) -> Application (s, List.map (elim_exp' (name, term)) args)
+  | Seq (e, e') -> Seq ((elim_exp' (name, term) e), (elim_exp' (name, term) e'))
+  | Asg (e, e') as exp -> if (shadow_check term e) then exp
+                              else Asg ((elim_exp' (name, term) e), (elim_exp' (name, term) e'))
+  | Negation e -> Negation (elim_exp' (name, term) e)
+  | If (e, e', e'') -> If ((elim_exp' (name, term) e), (elim_exp' (name, term) e'), (elim_exp' (name, term) e''))
+  | While (e, e') -> While ((elim_exp' (name, term) e), (elim_exp' (name, term) e'))
+  | Deref e -> Deref (elim_exp' (name, term) e)
+  | Return e -> Return (elim_exp' (name, term) e)
+  | _ as exp -> exp
+
+(* Expression effects check *)
+let rec has_effects = function
+  | Const i -> false
+  | Let (s, e, e') -> has_effects e || has_effects e'
+  | New (s, e, e') -> has_effects e || has_effects e'
+  | Identifier s -> false
+  | Seq (e, e') -> has_effects e || has_effects e'
+  | Asg (e, e') -> has_effects e || has_effects e'
+  | Operation (op, e, e') -> has_effects e || has_effects e'
+  | Negation e -> has_effects e
+  | If (e, e', e'') -> has_effects e || has_effects e' || has_effects e''
+  | While (e, e') -> has_effects e || has_effects e'
+  | Deref e -> has_effects e
+  | Return e -> has_effects e
+  | _ -> true
+
+(* Subexpression elimination *)
+let rec elim_exp = function
+  | Operation (op, e, e') -> Operation (op, (elim_exp e), (elim_exp e'))
+  | Printint e -> Printint (elim_exp e)
+  | Let (s, e, e') as term -> (if not (has_effects term)
+                               then (let name = "opt"^(string_of_int (newref ())) in
+                               let rexp = elim_exp' (name, e) e' in
+                                  if e' <> rexp then Let (name, e, Let(s, Identifier name, rexp))
+                                  else Let (s, (elim_exp e), (elim_exp e')))
+                               else Let (s, (elim_exp e), (elim_exp e')))
+  | New (s, e, e') -> New (s, (elim_exp e), (elim_exp e'))
+  | Application (s, args) -> Application (s, List.map elim_exp args)
+  | Seq (e, e') -> Seq ((elim_exp e), (elim_exp e'))
+  | Asg (e, e') -> Asg ((elim_exp e), (elim_exp e'))
+  | Negation e -> Negation (elim_exp e)
+  | If (e, e', e'') -> If ((elim_exp e), (elim_exp e'), (elim_exp e''))
+  | While (e, e') -> While ((elim_exp e), (elim_exp e'))
+  | Deref e -> Deref (elim_exp e)
+  | Return e -> Return (elim_exp e)
+  | _ as exp -> exp
 
 (* Operation optimisation *)
 let opt_op op e e' =
@@ -65,7 +145,7 @@ and opt_fundef (name, argvs) =
   try
   (let (args, exp) = (Hashtbl.find funs name) in
                       (cur_fun := name;
-                      let res = opt_exp [] exp in
+                      let res = elim_exp (opt_exp [] exp) in
                     	match res with
                       | Const i -> Const i
                       | _ -> Application (name, argvs)))
@@ -78,7 +158,7 @@ let rec pop_funs = function
 
 (* Program Optimisation *)
 let rec opt_prog' = function
-  | (name, args, exp)::prog -> cur_fun := name; (name, args, opt_exp [] exp)::(opt_prog' prog)
+  | (name, args, exp)::prog -> cur_fun := name; (name, args, elim_exp (opt_exp [] exp))::(opt_prog' prog)
   | [] -> []
 
 let opt_prog prog = pop_funs prog; opt_prog' prog
