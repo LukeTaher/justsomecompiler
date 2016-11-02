@@ -22,7 +22,7 @@ let rec store_fetch key =
 	try Hashtbl.find !store key
 				 with Not_found -> failwith ("Unable to match - Address out of bounds")
 
-(* Adress generation *)
+(* Address generation *)
 let addr = ref 0
 let newref () = addr:=!addr+1; !addr
 
