@@ -36,9 +36,9 @@ let parse buf = read_to_empty (Buffer.create 1) buf
 						|> Lexing.from_string
 						|> parse_with_error
 
-let eval_prog_stat ast = let t0 = Sys.time() in
+let eval_prog_stat ast = let t0 = Unix.gettimeofday() in
 											eval_prog ast |> ignore;
-											let t = Sys.time() in
+											let t = Unix.gettimeofday() in
 	 										("Evaluation Steps: " ^ (string_of_int !count) ^
 											"\nExecution Time: " ^ (string_of_float (t -. t0)))
 
