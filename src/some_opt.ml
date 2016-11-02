@@ -80,7 +80,12 @@ let rec elim_exp = function
                                   if e' <> rexp then Let (name, e, Let(s, Identifier name, rexp))
                                   else Let (s, (elim_exp e), (elim_exp e')))
                                else Let (s, (elim_exp e), (elim_exp e')))
-  | New (s, e, e') -> New (s, (elim_exp e), (elim_exp e'))
+  | New (s, e, e') as term -> (if not (has_effects term)
+                               then (let name = "opt"^(string_of_int (newref ())) in
+                               let rexp = elim_exp' (name, e) e' in
+                                  if e' <> rexp then Let (name, e, New(s, Identifier name, rexp))
+                                  else New (s, (elim_exp e), (elim_exp e')))
+                               else New (s, (elim_exp e), (elim_exp e')))
   | Application (s, args) -> Application (s, List.map elim_exp args)
   | Seq (e, e') -> Seq ((elim_exp e), (elim_exp e'))
   | Asg (e, e') -> Asg ((elim_exp e), (elim_exp e'))
