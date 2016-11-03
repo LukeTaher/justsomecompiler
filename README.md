@@ -1,19 +1,27 @@
 ### Assignment 3 Notes
-- Recursion
-- Higher order functions
-- Lambda functions
+- Constant folding + propagation
+- Loop unrolling
+- Function inlining
+- Basic subexpression elimination
+- Evaluation step counting
+- Evaluation timing
+- ASTs in `test/asm4/ast`
 
-*see asm3 test script for examples*
+
+*see asm4 test script for examples*
 
 ## About
-A compiler developed in OCaml with OCamllex and Menhir for the Compiler Construction module at the University of Birmingham. Intended to mimick a C-like syntax.
+A compiler developed in OCaml with OCamllex and Menhir for the Compiler Construction module at the University of Birmingham. Intended to mimic a C-like syntax with functional characteristics.
 
 ## Usage
 Compile with `make` clean with `make clean`
 
-Run on a given file with `./some_lang.native [filename]` to evaluate
+Run on a given file with `./some_lang.native [-flags] [filename]`
 
-Run on a given file with `./some_lang.native -v [filename]` to print AST
+###### Flags
+- `-v` - Print abstract syntax tree
+- `-o` - Enable optimisations
+- `-s` - Output evaluation statistics
 
 ## Tests
 
@@ -33,9 +41,9 @@ Function definitions consist of a function name, sequence of zero or more argume
 functionName(arguments){instructions}
 ```
 
-Arguments consist of a list of instructions seperated by a comma
+Arguments consist of a list of instructions separated by a comma
 
-Instructions are seperated by semicolons as:
+Instructions are separated by semicolons as:
 
 ```
 instruction
@@ -48,10 +56,10 @@ Instructions can be in the form of the following expressions:
 var varName = 5               //variable declaration
 const varName = 5             //constant declaration
 varName                       //variable
-~x                            //dereferance variable
+~x                            //dereference variable
 
 5                              //constant
-5 {math operation} x           //mathmatical expression
+5 {math operation} x           //mathematical expression
 x {bool operation} y           //boolean expression
 !(x)                           //boolean negation
 
@@ -67,5 +75,5 @@ and the following constructs:
 ```
 while(expression){instruction}                             //while loop
 if(expression){instruction}else{instruction}               //if statement
-fun var1, var2, ..., varn -> (instruction)                 //lambda function 
+fun var1, var2, ..., varn -> (instruction)                 //lambda function
 ```
