@@ -1,4 +1,4 @@
-### Assignment 3 Notes
+### Assignment 4 Notes
 - Constant folding + propagation
 - Loop unrolling
 - Function inlining
