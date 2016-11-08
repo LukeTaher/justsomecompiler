@@ -27,8 +27,8 @@ let neg addr = if (find ram addr) > 0 then replace ram addr 0
                                         else replace ram addr 1
 
 (* Address generation *)
-let cur_addr = ref 2
-let newaddr () = cur_addr:=!cur_addr+1; !cur_addr
+let addr_base = ref 2
+let newaddr () = addr_base:=!addr_base+1; !addr_base
 
 (* Address lookup *)
 let rec lookup s = function
@@ -43,23 +43,31 @@ let rec inter_exp symt = function
                 addr
   | Readint -> 0
   | Printint e -> mv 1 (inter_exp symt e); 1
-  | Let (s, e, e') -> let addr = inter_exp symt e in
-                      inter_exp ((s, addr)::symt) e'
+  | Let (s, e, e') -> let addr1 = inter_exp symt e in
+                      let addr2 = inter_exp ((s, addr1)::symt) e' in
+                      mv addr1 addr2;
+                      addr_base := addr1;
+                      addr1
   (* | New (s, e, e') ->  *)
   (* | Application (s, args) -> *)
-  | Identifier s -> lookup s symt
+  | Identifier s -> let addr = lookup s symt in
+                    let addr' = newaddr() in
+                    mv addr' addr;
+                    addr'
   | Seq (e, e') -> (inter_exp symt e) |> ignore; (inter_exp symt e')
   (* | Lambda (args, e') -> *)
   (* | Asg (e, e') -> *)
   | Operation (oper, e, e') -> let addr1 = inter_exp symt e in
                                let addr2 = inter_exp symt e' in
                                op (oper, addr1, addr2);
-                               let addr3 = newaddr() in
-                               st addr3;
-                               addr3
+                               addr_base := addr1;
+                               st addr1;
+                               addr1
   | Negation e -> let addr = inter_exp symt e in
-                  neg addr;
-                  addr
+                  let addr' = newaddr() in
+                  mv addr' addr;
+                  neg addr';
+                  addr'
   (* | If (e, e', e'') -> *)
   (* | While (e, e') -> *)
   (* | Deref e -> *)
