@@ -2,6 +2,7 @@ open Some_types
 open Some_lex
 open Some_eval
 open Some_opt
+open Some_inter
 open Lexing
 open Printf
 
@@ -43,6 +44,10 @@ let eval_prog_stat ast = let t0 = Unix.gettimeofday() in
 											"\nExecution Time: " ^ (string_of_float (t -. t0)))
 
 let _ = match Sys.argv.(1) with
+		| "-i" -> open_in Sys.argv.(2)
+				|> parse
+				|> inter_prog
+				|> printf "%i\n"
 		| "-v" -> open_in Sys.argv.(2)
 				|> parse
 				|> string_of_prog
