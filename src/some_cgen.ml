@@ -157,9 +157,9 @@ and cgen_fundef (name, argvs) symt =
   let addr2 = newaddr() in
   ldbp();
   st addr1;
-  gen_stackframe args argvs symt;
   ldc stemp;
   stbp();
+  gen_stackframe args argvs symt;
   call name;
   st addr2;
   ld addr1;
