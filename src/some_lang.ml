@@ -3,6 +3,7 @@ open Some_lex
 open Some_eval
 open Some_opt
 open Some_inter
+open Some_cgen
 open Lexing
 open Printf
 
@@ -48,6 +49,18 @@ let _ = match Sys.argv.(1) with
 				|> parse
 				|> inter_prog
 				|> printf "%i\n"
+		| "-io" | "-oi" -> open_in Sys.argv.(2)
+				|> parse
+				|> opt_prog
+				|> inter_prog
+				|> printf "%i\n"
+		| "-c" -> open_in Sys.argv.(2)
+				|> parse
+				|> cgen_prog
+		| "-co" | "-oc" -> open_in Sys.argv.(2)
+				|> parse
+				|> opt_prog
+				|> cgen_prog
 		| "-v" -> open_in Sys.argv.(2)
 				|> parse
 				|> string_of_prog
