@@ -159,6 +159,7 @@ and cgen_fundef (name, argvs) symt =
   st addr1;
   ldc stemp;
   stbp();
+  stack_pointer := 3;
   gen_stackframe args argvs symt;
   call name;
   st addr2;
