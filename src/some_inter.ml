@@ -27,6 +27,8 @@ let st addr = replace ram addr !acc
 let ldc n = acc := n
 let ld addr = acc := find ram addr
 let mv addr1 addr2 = replace ram addr1 (find ram addr2)
+let mvfa addr1 = replace ram addr1 (find ram !acc)
+let mvta addr1 = replace ram !acc (find ram addr1)
 let neg addr = if (find ram addr) > 0 then replace ram addr 0
                                         else replace ram addr 1
 let cmp addr n = if (find ram addr) = n then acc := 1
@@ -78,13 +80,10 @@ let rec inter_exp symt = function
   | Seq (e, e') -> (inter_exp symt e) |> ignore; (inter_exp symt e')
   (* | Lambda (args, e') -> *)
   | Asg (e, e') -> let addr1 = inter_exp symt e in
-                   ld addr1;
-                   let haddr = !acc in
                    let addr2 = inter_exp symt e' in
-                   mv haddr addr2;
+									 ld addr1;
+                   mvta addr2;
                    stack_base := addr1;
-                   ldc haddr;
-                   st addr1;
                    addr1
   | Operation (oper, e, e') -> let addr1 = inter_exp symt e in
                                let addr2 = inter_exp symt e' in
@@ -111,10 +110,8 @@ let rec inter_exp symt = function
                      else 2
   | Deref e -> let addr = inter_exp symt e in
                ld addr;
-               let haddr = !acc in
-               let addr' = newaddr() in
-               mv addr' haddr;
-               addr'
+               mvfa addr;
+               addr
   | Return e -> inter_exp symt e
   | _ -> failwith "Unable to Interpret"
 
