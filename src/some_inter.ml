@@ -35,12 +35,12 @@ let cmp addr n = if (find ram addr) = n then acc := 1
                                           else acc:= 0
 
 (* Address generation *)
-let stack_base = ref 3
-let newaddr () = stack_base:=!stack_base+1; if !stack_base < 53 then !stack_base
+let stack_pointer = ref 3
+let newaddr () = stack_pointer:=!stack_pointer+1; if !stack_pointer < 53 then !stack_pointer
                                             else failwith "Buffer Overflow"
 
-let heap_base = ref 103
-let heapalloc () = heap_base:=!heap_base-1; if !heap_base > 52 then !heap_base
+let heap_pointer = ref 103
+let heapalloc () = heap_pointer:=!heap_pointer-1; if !heap_pointer > 52 then !heap_pointer
                                             else failwith "Buffer Overflow"
 
 (* Address lookup *)
@@ -59,9 +59,9 @@ let rec inter_exp symt = function
   | Let (s, e, e') -> let addr1 = inter_exp symt e in
                       let addr2 = inter_exp ((s, addr1)::symt) e' in
                       mv addr1 addr2;
-                      stack_base := addr1;
+                      stack_pointer := addr1;
                       addr1
-  | New (s, e, e') -> let hbtemp = !heap_base in
+  | New (s, e, e') -> let hbtemp = !heap_pointer in
                       let addr1 = inter_exp symt e in
                       let haddr = heapalloc() in
                       mv haddr addr1;
@@ -69,8 +69,8 @@ let rec inter_exp symt = function
                       st addr1;
                       let addr2 = inter_exp ((s, addr1)::symt) e' in
                       mv addr1 addr2;
-                      stack_base := addr1;
-                      heap_base := hbtemp;
+                      stack_pointer := addr1;
+                      heap_pointer := hbtemp;
                       addr1
   | Application (s, args) -> inter_fundef (s, args) symt
   | Identifier s -> let addr = lookup s symt in
@@ -83,12 +83,12 @@ let rec inter_exp symt = function
                    let addr2 = inter_exp symt e' in
 									 ld addr1;
                    mvta addr2;
-                   stack_base := addr1;
+                   stack_pointer := addr1;
                    addr1
   | Operation (oper, e, e') -> let addr1 = inter_exp symt e in
                                let addr2 = inter_exp symt e' in
                                op (oper, addr1, addr2);
-                               stack_base := addr1;
+                               stack_pointer := addr1;
                                st addr1;
                                addr1
   | Negation e -> let addr = inter_exp symt e in
@@ -119,11 +119,11 @@ let rec inter_exp symt = function
 and inter_fundef (name, argvs) symt =
   let (args, exp) = try find funs name
                     with Not_found -> failwith ("Unable to match - Function definition "^ name ^" not found")(*lambda_fetch name env*) in
-  let stemp = !stack_base in
-  let htemp = !heap_base in
+  let stemp = !stack_pointer in
+  let htemp = !heap_pointer in
   let res = inter_exp (gen_stackframe args argvs symt) exp in
-  stack_base := stemp;
-  heap_base := htemp;
+  stack_pointer := stemp;
+  heap_pointer := htemp;
   res
 
 (* Stack Frame *)
