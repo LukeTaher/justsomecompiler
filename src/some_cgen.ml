@@ -151,24 +151,24 @@ let rec cgen_exp symt = function
 and cgen_fundef (name, argvs) symt =
   let (args, exp) = try find funs name
                     with Not_found -> failwith ("Unable to match - Function definition "^ name ^" not found")(*lambda_fetch name env*) in
+  (* let addr1 = newaddr() in *)
+  let addr2 = newaddr() in
   let addr1 = newaddr() in
   let stemp = !stack_pointer in
   let htemp = !heap_pointer in
-  let addr2 = newaddr() in
+  gen_stackframe args argvs symt;
   ldbp();
   st addr1;
   ldc stemp;
   stbp();
   stack_pointer := 3;
-  gen_stackframe args argvs symt;
   call name;
-  st addr2;
-  ld addr1;
+  st (-2);
+  ld (-1);
   stbp();
-  mv addr1 addr2;
-  stack_pointer := stemp;
+  stack_pointer := stemp-1;
   heap_pointer := htemp;
-  addr1
+  addr2
 
 (* Stack Frame *)
 and gen_stackframe args argvs symt =
