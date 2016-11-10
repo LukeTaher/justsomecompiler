@@ -8,7 +8,7 @@ let funs = Hashtbl.create 100
 let acc = ref 0
 
 let lblno = ref 0
-let genlblno () = lblno := !lblno; !lblno
+let genlblno () = lblno := !lblno+1; !lblno
 
 let string_of_op = function
 	  | Add -> "add"
@@ -199,5 +199,3 @@ let rec add_funs = function
   | _ -> ()
 
 let rec cgen_prog prog = add_funs prog; cgen_prog' prog; Buffer.output_buffer stdout code
-  (* | (name, args, exp)::prog -> replace funs name (args, exp); cgen_prog prog
-	| _ -> find ram (inter_fundef ("main", []) []) *)
