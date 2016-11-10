@@ -1,14 +1,10 @@
-### Assignment 4 Notes
-- Constant folding + propagation
-- Loop unrolling
-- Function inlining
-- Basic subexpression elimination
-- Evaluation step counting
-- Evaluation timing
-- ASTs in `test/asm4/ast`
+### Assignment 5 Notes
+- Interpretation of functions, pointers, if, and while
+- Code generation of functions, pointers, if, and while
+- Generated code in `test/asm5/code`
 
 
-*see asm4 test script for examples*
+*see asm5 test script for examples*
 
 ## About
 A compiler developed in OCaml with OCamllex and Menhir for the Compiler Construction module at the University of Birmingham. Intended to mimic a C-like syntax with functional characteristics.
@@ -22,6 +18,8 @@ Run on a given file with `./some_lang.native [-flags] [filename]`
 - `-v` - Print abstract syntax tree
 - `-o` - Enable optimisations
 - `-s` - Output evaluation statistics
+- `-i` - Interpretation mode
+- `-c` - Code generation mode
 
 ## Tests
 
