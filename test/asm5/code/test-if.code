@@ -1,0 +1,31 @@
+_start:
+	ldc 2
+	st r4
+	ldc 10
+	st r5
+	mv r6, r4
+	ldc 2
+	st r7
+	eq r6, r7
+	st r6
+	cmp r6, 1
+	jmpz BRANCH1
+	mv r7, r4
+	mv r8, r5
+	mul r7, r8
+	st r7
+	mv r6, r7
+	jmp END_BRANCH1
+BRANCH1:
+	mv r7, r5
+	mv r8, r4
+	div r7, r8
+	st r7
+	mv r6, r7
+END_BRANCH1:
+	mv r5, r6
+	mv r4, r5
+	ld r4
+	jmp END
+END:
+	nop

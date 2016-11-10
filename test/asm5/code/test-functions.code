@@ -1,0 +1,23 @@
+_start:
+	ldc 1
+	st r6
+	ld bp
+	st r5
+	ldc 5
+	st bp
+	call math
+	st r-2
+	ld r-1
+	st bp
+	ld r4
+	jmp END
+END:
+	nop
+math:
+	mv r5, r4
+	ldc 2
+	st r6
+	add r5, r6
+	st r5
+	ld r5
+	ret

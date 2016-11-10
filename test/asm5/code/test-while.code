@@ -1,0 +1,39 @@
+_start:
+	ldc 0
+	st r4
+	mv r102, r4
+	ldc 102
+	st r4
+	mv r5, r4
+	ld r5
+	mvfa r5
+	ldc 100
+	st r6
+	le r5, r6
+	st r5
+	ldc 0
+	st r6
+WHILE1:
+	cmp r5, 1
+	jmpz END_WHILE1
+	mv r7, r4
+	mv r8, r4
+	ld r8
+	mvfa r8
+	ldc 10
+	st r9
+	add r8, r9
+	st r8
+	ld r7
+	mvta r8
+	mv r8, r4
+	ld r8
+	mvfa r8
+	mv r6, r8
+	jmp WHILE1
+END_WHILE1:
+	mv r4, r6
+	ld r4
+	jmp END
+END:
+	nop
