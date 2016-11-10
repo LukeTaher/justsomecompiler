@@ -118,7 +118,7 @@ let rec inter_exp symt = function
 (* Function interpretation *)
 and inter_fundef (name, argvs) symt =
   let (args, exp) = try find funs name
-                    with Not_found -> failwith ("Unable to match - Function definition "^ name ^" not found")(*lambda_fetch name env*) in
+                    with Not_found -> failwith ("Unable to match - Function definition "^ name ^" not found") in
   let stemp = !stack_pointer in
   let htemp = !heap_pointer in
   let res = inter_exp (gen_stackframe args argvs symt) exp in
@@ -133,6 +133,7 @@ and gen_stackframe args argvs symt =
                                 (arg, addr1)::(gen_stackframe args argvs symt)
   | _ -> []
 
+(* Program interpretation *)
 let rec inter_prog prog =
   replace ram 2 0;
   match prog with

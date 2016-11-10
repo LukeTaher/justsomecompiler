@@ -4,6 +4,9 @@ open Hashtbl
 (* Functions *)
 let funs = Hashtbl.create 100
 
+(* Code string *)
+let code = Buffer.create 100
+
 (* Instruction Set *)
 let acc = ref 0
 
@@ -22,8 +25,6 @@ let string_of_op = function
 	  | Geq -> "geq"
 	  | And -> "and"
 	  | Or -> "or"
-
-let code = Buffer.create 100
 
 let op (op, addr1, addr2) = "\t" ^ (string_of_op op) ^ " r" ^ (string_of_int addr1) ^
                             ", r" ^ (string_of_int addr2) ^ "\n"
@@ -63,7 +64,7 @@ let rec lookup s = function
     | [] -> failwith "Unable to match - Address out of bounds"
     | (s', addr)::symt -> if s = s' then addr else lookup s symt
 
-(* Interpreter *)
+(* Code generation *)
 let rec cgen_exp symt = function
   | Const i -> let addr = newaddr() in
                 ldc i;
@@ -147,11 +148,10 @@ let rec cgen_exp symt = function
   | Return e -> cgen_exp symt e
   | _ -> failwith "Unable to Interpret"
 
-(* Function interpretation *)
+(* Function generation *)
 and cgen_fundef (name, argvs) symt =
   let (args, exp) = try find funs name
-                    with Not_found -> failwith ("Unable to match - Function definition "^ name ^" not found")(*lambda_fetch name env*) in
-  (* let addr1 = newaddr() in *)
+                    with Not_found -> failwith ("Unable to match - Function definition "^ name ^" not found") in
   let addr2 = newaddr() in
   let addr1 = newaddr() in
   let stemp = !stack_pointer in
@@ -170,13 +170,19 @@ and cgen_fundef (name, argvs) symt =
   heap_pointer := htemp;
   addr2
 
-(* Stack Frame *)
+(* Stack frame generation *)
 and gen_stackframe args argvs symt =
   match (args, argvs) with
   | (arg::args, argv::argvs) -> cgen_exp symt argv |> ignore;
                                 gen_stackframe args argvs symt
   | _ -> ()
 
+(* Store functions *)
+let rec add_funs = function
+  | (name, (args:string list), exp)::prog -> replace funs name (args, exp); add_funs prog
+  | _ -> ()
+
+(* Program code generation *)
 let rec cgen_prog' = function
   | ("main", args, exp)::prog ->printlbl "_start";
                                 stack_pointer := 3;
@@ -192,10 +198,6 @@ let rec cgen_prog' = function
                                 ld addr;
                                 "\tret\n" |> Buffer.add_string code;
                                 cgen_prog' prog
-  | _ -> ()
-
-let rec add_funs = function
-  | (name, (args:string list), exp)::prog -> replace funs name (args, exp); add_funs prog
   | _ -> ()
 
 let rec cgen_prog prog = add_funs prog; cgen_prog' prog; Buffer.output_buffer stdout code
