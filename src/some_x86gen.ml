@@ -37,6 +37,9 @@ let id addr = "movq " ^ (-16 -8 * addr |> string_of_int) ^ "(%rbp), %rax\n" ^
               "pushq %rax\n" |> Buffer.add_string code
 let ilet () = "popq %rax\n" ^ "popq %rbx\n" ^ "pushq %rax\n" |> Buffer.add_string code
 let neg () = "popq %rax\n" ^ "neg %rax\n" ^ "push %rax\n" |> Buffer.add_string code
+let lea addr = "leaq " ^ (-16 -8 * addr |> string_of_int) ^ "(%rbp), %rax\n" ^
+               "pushq %rax\n" |> Buffer.add_string code
+let deref () = "popq %rax\n" ^ "movq (%rax), %rax\n" ^ "pushq %rax\n" |> Buffer.add_string code
 
 (* Address lookup *)
 let rec lookup s = function
@@ -51,8 +54,11 @@ let rec x86gen_exp symt = function
   | Let (s, e, e') -> x86gen_exp symt e;
                       x86gen_exp ((s, !sp) :: symt) e';
                       ilet ()
-  (* | New (s, e, e') ->
-  | Application (s, args) -> *)
+  | New (s, e, e') -> x86gen_exp symt e;
+                      lea !sp;
+                      sp := !sp + 1;
+                      x86gen_exp ((s, !sp) :: symt) e'
+  (* | Application (s, args) -> *)
   | Identifier s -> let addr = lookup s symt in
                     id addr;
                     sp := !sp + 1
@@ -68,10 +74,12 @@ let rec x86gen_exp symt = function
   | Negation e -> x86gen_exp symt e;
                   neg ();
                   sp := !sp - 1
-  (* | If (e, e', e'') ->
-  | While (e, e') ->
-  | Deref e ->
-  | Return e -> *)
+  (* | If (e, e', e'') -> *)
+  (* | While (e, e') -> *)
+  | Deref e -> x86gen_exp symt e;
+               deref ();
+               sp := !sp + 1
+  (* | Return e -> *)
   | _ -> failwith "Unable to Compile"
 
 (* Function generation *)
