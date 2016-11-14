@@ -39,7 +39,6 @@ Ltmp4:
 Ltmp5:
 	.cfi_def_cfa_register %rbp
 	subq	$16, %rsp
-	movl	$0, -4(%rbp)
   "
 
 let x86_postfix = "	pop %rdi

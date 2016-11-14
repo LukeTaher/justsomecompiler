@@ -40,7 +40,7 @@ let neg () = "popq %rax\n" ^ "neg %rax\n" ^ "push %rax\n" |> Buffer.add_string c
 let lea addr = "leaq " ^ (-16 -8 * addr |> string_of_int) ^ "(%rbp), %rax\n" ^
                "pushq %rax\n" |> Buffer.add_string code
 let deref () = "popq %rax\n" ^ "movq (%rax), %rax\n" ^ "pushq %rax\n" |> Buffer.add_string code
-
+let asg () = "popq %rax\n" ^ "popq %rbx\n" ^ "movq %rax, (%rbx)\n" |> Buffer.add_string code
 (* Address lookup *)
 let rec lookup s = function
   | [] -> failwith "Unable to match - Address out of bounds"
@@ -63,10 +63,12 @@ let rec x86gen_exp symt = function
                     id addr;
                     sp := !sp + 1
   | Seq (e, e') -> x86gen_exp symt e;
-                   x86gen_exp symt e';
-                   ilet ()
+                   x86gen_exp symt e'
   (* | Lambda (args, e') -> *)
-  (* | Asg (e, e') -> *)
+  | Asg (e, e') -> x86gen_exp symt e;
+                   x86gen_exp symt e';
+                   asg ();
+                   sp := !sp - 2
   | Operation (oper, e, e') -> x86gen_exp symt e;
                                x86gen_exp symt e';
                                op oper;
@@ -79,7 +81,7 @@ let rec x86gen_exp symt = function
   | Deref e -> x86gen_exp symt e;
                deref ();
                sp := !sp + 1
-  (* | Return e -> *)
+  | Return e -> x86gen_exp symt e
   | _ -> failwith "Unable to Compile"
 
 (* Function generation *)
