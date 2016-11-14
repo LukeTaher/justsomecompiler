@@ -4,6 +4,7 @@ open Some_eval
 open Some_opt
 open Some_inter
 open Some_cgen
+open Some_x86gen
 open Lexing
 open Printf
 
@@ -87,6 +88,7 @@ let _ = match Sys.argv.(1) with
 			|> printf "%s\n"
 		| _ -> open_in Sys.argv.(1)
 			|> parse
-			|> eval_prog
-			|> string_of_eval
-			|> printf "%s\n"
+			(* |> eval_prog *)
+			(* |> string_of_eval *)
+			|> x86gen_prog
+			(* |> printf "%s\n" *)
