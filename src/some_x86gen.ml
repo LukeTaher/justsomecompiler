@@ -31,16 +31,36 @@ let string_of_op = function
 	  | Or -> "or"
 
 let st n = "\tpushq\t$" ^ (string_of_int n) ^ "\n" |> Buffer.add_string code
-let op oper = "popq %rax\n" ^ "popq %rbx \n" ^ (string_of_op oper) ^ " %rax, %rbx\n" ^
-            "pushq %rbx\n" |> Buffer.add_string code
+
+let op oper = "popq %rax\n" ^ "popq %rbx \n" ^ (string_of_op oper) ^
+              " %rax, %rbx\n" ^ "pushq %rbx\n" |> Buffer.add_string code
+
 let id addr = "movq " ^ (-16 -8 * addr |> string_of_int) ^ "(%rbp), %rax\n" ^
               "pushq %rax\n" |> Buffer.add_string code
-let ilet () = "popq %rax\n" ^ "popq %rbx\n" ^ "pushq %rax\n" |> Buffer.add_string code
-let neg () = "popq %rax\n" ^ "neg %rax\n" ^ "push %rax\n" |> Buffer.add_string code
+
+let ilet () = "popq %rax\n" ^ "popq %rbx\n" ^
+              "pushq %rax\n" |> Buffer.add_string code
+
+let neg () = "popq %rax\n" ^ "neg %rax\n" ^
+             "push %rax\n" |> Buffer.add_string code
+
 let lea addr = "leaq " ^ (-16 -8 * addr |> string_of_int) ^ "(%rbp), %rax\n" ^
                "pushq %rax\n" |> Buffer.add_string code
-let deref () = "popq %rax\n" ^ "movq (%rax), %rax\n" ^ "pushq %rax\n" |> Buffer.add_string code
-let asg () = "popq %rax\n" ^ "popq %rbx\n" ^ "movq %rax, (%rbx)\n" |> Buffer.add_string code
+
+let deref () = "popq %rax\n" ^ "movq (%rax), %rax\n" ^
+               "pushq %rax\n" |> Buffer.add_string code
+
+let asg () = "popq %rax\n" ^ "popq %rbx\n" ^
+             "movq %rax, (%rbx)\n" |> Buffer.add_string code
+
+let bcheck () = "popq %rax\n" ^ "cmpq $0, %rax\n" |> Buffer.add_string code
+
+let jle label = "jle " ^ label ^ "\n" |> Buffer.add_string code
+
+let jmp label = "jmp " ^ label ^ "\n" |> Buffer.add_string code
+
+let printlbl label = label ^ ":\n" |> Buffer.add_string code
+
 (* Address lookup *)
 let rec lookup s = function
   | [] -> failwith "Unable to match - Address out of bounds"
@@ -76,8 +96,25 @@ let rec x86gen_exp symt = function
   | Negation e -> x86gen_exp symt e;
                   neg ();
                   sp := !sp - 1
-  (* | If (e, e', e'') -> *)
-  (* | While (e, e') -> *)
+  | If (e, e', e'') -> let lbl = "BRANCH"^(string_of_int (genlblno())) in
+                       let endlbl = "END_"^lbl in
+                       x86gen_exp symt e;
+                       bcheck ();
+                       jle lbl;
+                       x86gen_exp symt e';
+                       jmp endlbl;
+                       printlbl lbl;
+                       x86gen_exp symt e'';
+                       printlbl endlbl
+  | While (e, e') -> let lbl = "LOOP"^(string_of_int (genlblno())) in
+                     let endlbl = "END_"^lbl in
+                     printlbl lbl;
+                     x86gen_exp symt e;
+                     bcheck ();
+                     jle endlbl;
+                     x86gen_exp symt e';
+                     jmp lbl;
+                     printlbl endlbl
   | Deref e -> x86gen_exp symt e;
                deref ();
                sp := !sp + 1
