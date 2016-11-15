@@ -12,6 +12,7 @@ let code = Buffer.create 100
 (* Registers *)
 let sp = ref 0
 let bp = ref 0
+let regs = ["%rdi"; "%rsi"; "%rdx"; "%rcx"; "%r8"; "%r9"]
 
 (* Instruction Set *)
 let lblno = ref 0
@@ -31,6 +32,12 @@ let string_of_op = function
 	  | Or -> "or"
 
 let st n = "\tpushq\t$" ^ (string_of_int n) ^ "\n" |> Buffer.add_string code
+
+let str r = "pushq " ^ r ^ "\n" |> Buffer.add_string code
+
+let sta addr = "pushq " ^ (-16 -8 * addr |> string_of_int) ^ "(%rbp)\n" |> Buffer.add_string code
+
+let ldr r = "popq " ^ r ^ "\n" |> Buffer.add_string code
 
 let op oper = "popq %rax\n" ^ "popq %rbx \n" ^ (string_of_op oper) ^
               " %rax, %rbx\n" ^ "pushq %rbx\n" |> Buffer.add_string code
@@ -61,6 +68,8 @@ let jmp label = "jmp " ^ label ^ "\n" |> Buffer.add_string code
 
 let printlbl label = label ^ ":\n" |> Buffer.add_string code
 
+let call label = "callq _" ^ label ^ "\n" |> Buffer.add_string code
+
 (* Address lookup *)
 let rec lookup s = function
   | [] -> failwith "Unable to match - Address out of bounds"
@@ -69,8 +78,10 @@ let rec lookup s = function
 (* Code generation *)
 let rec x86gen_exp symt = function
   | Const i -> st i; sp := !sp + 1
-  (* | Readint ->
-  | Printint e -> *)
+  (* | Readint -> *)
+  | Printint e -> x86gen_exp symt e;
+                  ldr "%rdi";
+                  call "print"
   | Let (s, e, e') -> x86gen_exp symt e;
                       x86gen_exp ((s, !sp) :: symt) e';
                       ilet ()
@@ -78,7 +89,7 @@ let rec x86gen_exp symt = function
                       lea !sp;
                       sp := !sp + 1;
                       x86gen_exp ((s, !sp) :: symt) e'
-  (* | Application (s, args) -> *)
+  | Application (s, args) -> x86gen_storeargs args regs symt; call s; str "%rax"
   | Identifier s -> let addr = lookup s symt in
                     id addr;
                     sp := !sp + 1
@@ -121,23 +132,41 @@ let rec x86gen_exp symt = function
   | Return e -> x86gen_exp symt e
   | _ -> failwith "Unable to Compile"
 
+and x86gen_storeargs es rs symt =
+  match (es, rs) with
+  | ([], _) -> ()
+  | (e::es, []) -> x86gen_exp symt e; x86gen_storeargs es [] symt (* fix? *)
+  | (e::es, r::rs) -> x86gen_exp symt e; ldr r; sp := !sp - 1; x86gen_storeargs es rs symt
+
+let rec x86gen_loadargs n rs i =
+  match (n, rs) with
+  | (0, _) -> ()
+  | (n, []) -> let i = i-1 in sta i; sp := !sp + 1; x86gen_loadargs (n-1) [] i
+  | (n, r::rs) -> str r; sp := !sp + 1; x86gen_loadargs (n-1) rs i
+
 (* Function generation *)
-(* and x86gen_fundef (name, argvs) symt = *)
-
-(* Store functions *)
-(* let rec add_funs = function
-  | (name, (args:string list), exp)::prog -> replace funs name (args, exp); add_funs prog
-  | _ -> () *)
-
-(* Program code generation *)
-(* let rec x86gen_prog' = *)
-
-(* let rec x86gen_prog prog = add_funs prog; x86gen_prog' prog; Buffer.output_buffer stdout code *)
-
-let rec x86gen_prog = function
-  | ("main", args, exp)::prog -> x86gen_exp [] exp;
-                                  printf "%s" x86_prefix;
-                                  Buffer.output_buffer stdout code;
-                                  printf "%s" x86_postfix;
-  | x::prog -> x86gen_prog prog
+let rec x86gen_fundef = function
+  | [] -> ()
+  | ("main", args, exp)::prog -> x86gen_fundef prog
+  | (name, args, exp)::prog -> sp := 0;
+                               x86_fun_prefix name |> Buffer.add_string code;
+                               let arg_count = (List.length args) in
+                               x86gen_loadargs arg_count regs 0;
+                               let symt = List.mapi (fun i arg -> (arg, (arg_count-i))) args in
+                               x86gen_exp symt exp;
+                               ldr "%rax";
+                               x86_fun_suffix |> Buffer.add_string code;
+                               x86gen_fundef prog
+let rec x86gen_main = function
+  | ("main", args, exp)::prog -> sp := 0;
+                                 x86_main_prefix |> Buffer.add_string code;
+                                 x86gen_exp [] exp;
+                                 x86_main_suffix |> Buffer.add_string code
+  | x::prog -> x86gen_main prog
   | [] -> failwith "Unable to Compile"
+
+let x86gen_prog prog = x86_prefix |> Buffer.add_string code;
+                       x86gen_fundef prog;
+                       x86gen_main prog;
+                       x86_suffix |> Buffer.add_string code;
+                       Buffer.output_buffer stdout code
