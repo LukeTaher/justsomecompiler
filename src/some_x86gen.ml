@@ -78,9 +78,12 @@ let rec lookup s = function
 (* Code generation *)
 let rec x86gen_exp symt = function
   | Const i -> st i; sp := !sp + 1
-  (* | Readint -> *)
+  | Readint -> call "read";
+							 str "%rax";
+							 sp := !sp + 1
   | Printint e -> x86gen_exp symt e;
                   ldr "%rdi";
+									sp := !sp - 1;
                   call "print"
   | Let (s, e, e') -> x86gen_exp symt e;
                       x86gen_exp ((s, !sp) :: symt) e';

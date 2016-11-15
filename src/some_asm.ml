@@ -28,9 +28,9 @@ Ltmp2:
 	retq
 	.cfi_endproc
 
-	.globl	_main
+	.globl	_read
 	.align	4, 0x90
-_main:                                  ## @main
+_read:                                  ## @read
 	.cfi_startproc
 ## BB#0:
 	pushq	%rbp
@@ -40,6 +40,32 @@ Ltmp4:
 	.cfi_offset %rbp, -16
 	movq	%rsp, %rbp
 Ltmp5:
+	.cfi_def_cfa_register %rbp
+	subq	$16, %rsp
+	leaq	L_.str.1(%rip), %rdi
+	leaq	-4(%rbp), %rsi
+	movb	$0, %al
+	callq	_scanf
+	movl	-4(%rbp), %ecx
+	movl	%eax, -8(%rbp)          ## 4-byte Spill
+	movl	%ecx, %eax
+	addq	$16, %rsp
+	popq	%rbp
+	retq
+	.cfi_endproc
+
+	.globl	_main
+	.align	4, 0x90
+_main:                                  ## @main
+	.cfi_startproc
+## BB#0:
+	pushq	%rbp
+Ltmp6:
+	.cfi_def_cfa_offset 16
+Ltmp7:
+	.cfi_offset %rbp, -16
+	movq	%rsp, %rbp
+Ltmp8:
 	.cfi_def_cfa_register %rbp
 	subq	$16, %rsp
   "
@@ -54,6 +80,8 @@ let x86_main_suffix = "	pop %rdi
 L_.str:                                 ## @.str
 	.asciz	\"%d\n\"
 
+L_.str.1:                               ## @.str.1
+	.asciz	\" %d\"
 
 "
 
