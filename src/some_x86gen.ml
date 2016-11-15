@@ -15,18 +15,21 @@ let regs = ["%rdi"; "%rsi"; "%rdx"; "%rcx"; "%r8"; "%r9"]
 let lblno = ref 0
 let genlblno () = lblno := !lblno+1; !lblno
 
-let string_of_op = function
-	  | Add -> "add"
-	  | Sub -> "sub"
-	  | Mul -> "imul"
-	  | Div -> ""
-	  | Eq -> ""
-	  | Le -> ""
-	  | Ge -> ""
-	  | Leq -> ""
-	  | Geq -> ""
-	  | And -> "and"
-	  | Or -> "or"
+let rec string_of_op = function
+	  | Add -> "add %rax, %rbx\n"
+	  | Sub -> "sub %rax, %rbx\n"
+	  | Mul -> "imul %rax, %rbx\n"
+	  | Div -> "pushq %rax\n pushq %rbx\n popq %rax\n popq %rbx\n cltd\n
+							div %rbx\n movq %rax, %rbx\n"
+	  | Eq -> "cmpq %rax, %rbx\n sete %al\n movq %rax, %rbx\n"
+	  | Le -> "cmpq %rax, %rbx\n setle %al\n movq %rax, %rbx\n"
+	  | Ge -> "cmpq %rax, %rbx\n setge %al\n movq %rax, %rbx\n"
+	  | Leq -> "movq %rax, %r10\n movq %rbx, %r11\n cmpq %r10, %r11\n setle %al\n
+							movq %rax, %rbx\n cmpq %r10, %r11\n sete %al\n" ^ string_of_op Or
+	  | Geq -> "movq %rax, %r10\n movq %rbx, %r11\n cmpq %r10, %r11\n setge %al\n
+							movq %rax, %rbx\n cmpq %r10, %r11\n sete %al\n" ^ string_of_op Or
+	  | And -> "and %rax, %rbx\n"
+	  | Or -> "or %rax, %rbx\n"
 
 let st n = "\tpushq\t$" ^ (string_of_int n) ^ "\n" |> Buffer.add_string code
 
@@ -37,7 +40,7 @@ let sta addr = "pushq " ^ (-16 -8 * addr |> string_of_int) ^ "(%rbp)\n" |> Buffe
 let ldr r = "popq " ^ r ^ "\n" |> Buffer.add_string code
 
 let op oper = "popq %rax\n" ^ "popq %rbx \n" ^ (string_of_op oper) ^
-              " %rax, %rbx\n" ^ "pushq %rbx\n" |> Buffer.add_string code
+              "pushq %rbx\n" |> Buffer.add_string code
 
 let id addr = "movq " ^ (-16 -8 * addr |> string_of_int) ^ "(%rbp), %rax\n" ^
               "pushq %rax\n" |> Buffer.add_string code
@@ -93,7 +96,7 @@ let rec x86gen_exp symt = function
                       lea !sp;
                       sp := !sp + 1;
                       x86gen_exp ((s, !sp) :: symt) e'
-  | Application (s, args) -> x86gen_storeargs (List.rev args) regs symt; call s; str "%rax"
+  | Application (s, args) -> x86gen_storeargs (List.rev args) regs symt; call s; str "%rax"; sp := !sp + 1
   | Identifier s -> let addr = lookup s symt in
                     id addr;
                     sp := !sp + 1
