@@ -85,18 +85,18 @@ L_.str.1:                               ## @.str.1
 
 "
 
-let x86_fun_prefix f = "	.globl	_" ^ f ^ "
+let x86_fun_prefix f n = let n = n + 9 in "	.globl	_" ^ f ^ "
 .align	4, 0x90
 _" ^ f ^ ":                                  ## @" ^ f ^ "
 .cfi_startproc
 ## BB#0:
 pushq	%rbp
-Ltmp6:
+Ltmp" ^ (string_of_int n) ^ ":
 .cfi_def_cfa_offset 16
-Ltmp7:
+Ltmp" ^ (string_of_int (n+1)) ^ ":
 .cfi_offset %rbp, -16
 movq	%rsp, %rbp
-Ltmp8:
+Ltmp" ^ (string_of_int (n+2)) ^ ":
 .cfi_def_cfa_register %rbp
 subq	$16, %rsp
 "

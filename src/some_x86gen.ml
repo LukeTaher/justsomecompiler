@@ -3,9 +3,6 @@ open Some_asm
 open Hashtbl
 open Printf
 
-(* Functions *)
-(* let funs = Hashtbl.create 100 *)
-
 (* Code string *)
 let code = Buffer.create 100
 
@@ -70,6 +67,10 @@ let printlbl label = label ^ ":\n" |> Buffer.add_string code
 
 let call label = "callq _" ^ label ^ "\n" |> Buffer.add_string code
 
+let movr r r' = "movq " ^ r ^ ", (" ^ r' ^ ") \n" |> Buffer.add_string code
+
+let alc () = "subq	$8, %rsp\n" |> Buffer.add_string code
+
 (* Address lookup *)
 let rec lookup s = function
   | [] -> failwith "Unable to match - Address out of bounds"
@@ -92,7 +93,7 @@ let rec x86gen_exp symt = function
                       lea !sp;
                       sp := !sp + 1;
                       x86gen_exp ((s, !sp) :: symt) e'
-  | Application (s, args) -> x86gen_storeargs args regs symt; call s; str "%rax"
+  | Application (s, args) -> x86gen_storeargs (List.rev args) regs symt; call s; str "%rax"
   | Identifier s -> let addr = lookup s symt in
                     id addr;
                     sp := !sp + 1
@@ -138,28 +139,33 @@ let rec x86gen_exp symt = function
 and x86gen_storeargs es rs symt =
   match (es, rs) with
   | ([], _) -> ()
-  | (e::es, []) -> x86gen_exp symt e; x86gen_storeargs es [] symt (* fix? *)
+  | (es, []) -> x86gen_storeargs' (List.rev es) symt(*x86gen_exp symt e; (*ldr "%rax"; sp := !sp - 1; movr "%rax" "%rsp";*) x86gen_storeargs es [] symt*) (* fix? *)
   | (e::es, r::rs) -> x86gen_exp symt e; ldr r; sp := !sp - 1; x86gen_storeargs es rs symt
+
+and x86gen_storeargs' es symt =
+  match es with
+  | [] -> ()
+  | e::es -> alc (); x86gen_exp symt e; x86gen_storeargs' es symt
 
 let rec x86gen_loadargs n rs i =
   match (n, rs) with
   | (0, _) -> ()
-  | (n, []) -> let i = i-1 in sta i; sp := !sp + 1; x86gen_loadargs (n-1) [] i
+  | (n, []) -> sta (-i); sp := !sp + 1; x86gen_loadargs (n-1) [] (i+2)
   | (n, r::rs) -> str r; sp := !sp + 1; x86gen_loadargs (n-1) rs i
 
 (* Function generation *)
-let rec x86gen_fundef = function
+let rec x86gen_fundef n = function
   | [] -> ()
-  | ("main", args, exp)::prog -> x86gen_fundef prog
+  | ("main", args, exp)::prog -> x86gen_fundef n prog
   | (name, args, exp)::prog -> sp := 0;
-                               x86_fun_prefix name |> Buffer.add_string code;
+                               x86_fun_prefix name n |> Buffer.add_string code;
                                let arg_count = (List.length args) in
-                               x86gen_loadargs arg_count regs 0;
+                               x86gen_loadargs arg_count regs 4;
                                let symt = List.mapi (fun i arg -> (arg, (arg_count-i))) args in
                                x86gen_exp symt exp;
                                ldr "%rax";
                                x86_fun_suffix |> Buffer.add_string code;
-                               x86gen_fundef prog
+                               x86gen_fundef (n+1) prog
 let rec x86gen_main = function
   | ("main", args, exp)::prog -> sp := 0;
                                  x86_main_prefix |> Buffer.add_string code;
@@ -169,7 +175,7 @@ let rec x86gen_main = function
   | [] -> failwith "Unable to Compile"
 
 let x86gen_prog prog = x86_prefix |> Buffer.add_string code;
-                       x86gen_fundef prog;
+                       x86gen_fundef 0 prog;
                        x86gen_main prog;
                        x86_suffix |> Buffer.add_string code;
                        Buffer.output_buffer stdout code
