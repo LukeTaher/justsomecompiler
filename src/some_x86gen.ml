@@ -22,12 +22,10 @@ let rec string_of_op = function
 	  | Div -> "pushq %rax\n pushq %rbx\n popq %rax\n popq %rbx\n cltd\n
 							div %rbx\n movq %rax, %rbx\n"
 	  | Eq -> "cmpq %rax, %rbx\n sete %al\n movq %rax, %rbx\n"
-	  | Le -> "cmpq %rax, %rbx\n setle %al\n movq %rax, %rbx\n"
-	  | Ge -> "cmpq %rax, %rbx\n setge %al\n movq %rax, %rbx\n"
-	  | Leq -> "movq %rax, %r10\n movq %rbx, %r11\n cmpq %r10, %r11\n setle %al\n
-							movq %rax, %rbx\n cmpq %r10, %r11\n sete %al\n" ^ string_of_op Or
-	  | Geq -> "movq %rax, %r10\n movq %rbx, %r11\n cmpq %r10, %r11\n setge %al\n
-							movq %rax, %rbx\n cmpq %r10, %r11\n sete %al\n" ^ string_of_op Or
+	  | Le -> "cmpq %rax, %rbx\n setl %al\n movq %rax, %rbx\n"
+	  | Ge -> "cmpq %rax, %rbx\n setg %al\n movq %rax, %rbx\n"
+		| Leq -> "cmpq %rax, %rbx\n setle %al\n movq %rax, %rbx\n"
+	  | Geq -> "cmpq %rax, %rbx\n setge %al\n movq %rax, %rbx\n"
 	  | And -> "and %rax, %rbx\n"
 	  | Or -> "or %rax, %rbx\n"
 
@@ -170,7 +168,7 @@ let rec x86gen_fundef n = function
                                ldr "%rax";
                                x86_fun_suffix |> Buffer.add_string code;
                                x86gen_fundef (n+1) prog
-															 
+
 (* Main method generation *)
 let rec x86gen_main = function
   | ("main", args, exp)::prog -> sp := 0;
