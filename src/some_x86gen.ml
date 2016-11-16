@@ -167,7 +167,7 @@ let rec x86gen_fundef n = function
                                x86gen_exp symt exp;
                                ldr "%rax";
                                x86_fun_suffix |> Buffer.add_string code;
-                               x86gen_fundef (n+1) prog
+                               x86gen_fundef (n+3) prog
 
 (* Main method generation *)
 let rec x86gen_main = function
