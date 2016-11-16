@@ -1,0 +1,9 @@
+/*
+  Tests constants
+*/
+
+main(){
+  const x = 2;
+  const y = 3;
+  x+y
+}
