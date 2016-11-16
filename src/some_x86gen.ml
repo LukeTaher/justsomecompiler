@@ -31,7 +31,7 @@ let rec string_of_op = function
 	  | And -> "and %rax, %rbx\n"
 	  | Or -> "or %rax, %rbx\n"
 
-let st n = "\tpushq\t$" ^ (string_of_int n) ^ "\n" |> Buffer.add_string code
+let st n = "pushq $" ^ (string_of_int n) ^ "\n" |> Buffer.add_string code
 
 let str r = "pushq " ^ r ^ "\n" |> Buffer.add_string code
 
@@ -139,6 +139,7 @@ let rec x86gen_exp symt = function
   | Return e -> x86gen_exp symt e
   | _ -> failwith "Unable to Compile"
 
+(* Stack frame generation *)
 and x86gen_storeargs es rs symt =
   match (es, rs) with
   | ([], _) -> ()
@@ -169,6 +170,8 @@ let rec x86gen_fundef n = function
                                ldr "%rax";
                                x86_fun_suffix |> Buffer.add_string code;
                                x86gen_fundef (n+1) prog
+															 
+(* Main method generation *)
 let rec x86gen_main = function
   | ("main", args, exp)::prog -> sp := 0;
                                  x86_main_prefix |> Buffer.add_string code;
@@ -177,6 +180,7 @@ let rec x86gen_main = function
   | x::prog -> x86gen_main prog
   | [] -> failwith "Unable to Compile"
 
+(* Program code generation *)
 let x86gen_prog prog = x86_prefix |> Buffer.add_string code;
                        x86gen_fundef 0 prog;
                        x86gen_main prog;

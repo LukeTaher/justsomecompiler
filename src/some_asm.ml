@@ -86,25 +86,25 @@ L_.str.1:                               ## @.str.1
 "
 
 let x86_fun_prefix f n = let n = n + 9 in "	.globl	_" ^ f ^ "
-.align	4, 0x90
+	.align	4, 0x90
 _" ^ f ^ ":                                  ## @" ^ f ^ "
-.cfi_startproc
+	.cfi_startproc
 ## BB#0:
-pushq	%rbp
+	pushq	%rbp
 Ltmp" ^ (string_of_int n) ^ ":
-.cfi_def_cfa_offset 16
+	.cfi_def_cfa_offset 16
 Ltmp" ^ (string_of_int (n+1)) ^ ":
-.cfi_offset %rbp, -16
-movq	%rsp, %rbp
+	.cfi_offset %rbp, -16
+	movq	%rsp, %rbp
 Ltmp" ^ (string_of_int (n+2)) ^ ":
-.cfi_def_cfa_register %rbp
-subq	$16, %rsp
+	.cfi_def_cfa_register %rbp
+	subq	$16, %rsp
 "
 
-let x86_fun_suffix = "		movq	%rbp, %rsp
-popq	%rbp
-retq
-.cfi_endproc"
+let x86_fun_suffix = "movq	%rbp, %rsp
+	popq	%rbp
+	retq
+	.cfi_endproc"
 
 let x86_suffix = "
-.subsections_via_symbols"
+	.subsections_via_symbols"

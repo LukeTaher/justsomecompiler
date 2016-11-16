@@ -86,9 +86,11 @@ let _ = match Sys.argv.(1) with
 			|> eval_prog
 			|> string_of_eval
 			|> printf "%s\n"
+		| "-x86" -> open_in Sys.argv.(2)
+			|> parse
+			|> x86gen_prog
 		| _ -> open_in Sys.argv.(1)
 			|> parse
-			(* |> eval_prog *)
-			(* |> string_of_eval *)
-			|> x86gen_prog
-			(* |> printf "%s\n" *)
+			|> eval_prog
+			|> string_of_eval
+			|> printf "%s\n"
