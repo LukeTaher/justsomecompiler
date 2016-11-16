@@ -1,10 +1,15 @@
-### Assignment 5 Notes
-- Interpretation of functions, pointers, if, and while
-- Code generation of functions, pointers, if, and while
-- Generated code in `test/asm5/code`
+### Assignment 6 Notes
+- Compilation of:
+  - Constants
+  - Variables
+  - If & While
+  - Functions with ∞ arguments
+  - Recursion
+- Generated executables in `test/asm6/executables`
+- Generated x86 assembly in `test/asm6/assembly`
 
 
-*see asm5 test script for examples*
+*see asm6 test script for examples*
 
 ## About
 A compiler developed in OCaml with OCamllex and Menhir for the Compiler Construction module at the University of Birmingham. Intended to mimic a C-like syntax with functional characteristics.
@@ -12,7 +17,7 @@ A compiler developed in OCaml with OCamllex and Menhir for the Compiler Construc
 ## Usage
 Compile with `make` clean with `make clean`
 
-Run on a given file with `./some_lang.native [-flags] [filename]`
+Run evaluator on a given file with `./some_lang.native [-flags] [filename]`
 
 ###### Flags
 - `-v` - Print abstract syntax tree
@@ -20,6 +25,7 @@ Run on a given file with `./some_lang.native [-flags] [filename]`
 - `-s` - Output evaluation statistics
 - `-i` - Interpretation mode
 - `-c` - Code generation mode
+- `-x86` - x86-64 generation mode (compatibility: OS X 10.11.6)
 
 ## Tests
 
