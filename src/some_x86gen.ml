@@ -152,7 +152,7 @@ let rec x86gen_exp symt = function
 and x86gen_storeargs es rs symt =
   match (es, rs) with
   | ([], _) -> ()
-  | (es, []) -> x86gen_storeargs' (List.rev es) symt(*x86gen_exp symt e; (*ldr "%rax"; sp := !sp - 1; movr "%rax" "%rsp";*) x86gen_storeargs es [] symt*) (* fix? *)
+  | (es, []) -> x86gen_storeargs' (List.rev es) symt
   | (e::es, r::rs) -> x86gen_exp symt e; ldr r; sp := !sp - 1; x86gen_storeargs es rs symt
 
 and x86gen_storeargs' es symt =
