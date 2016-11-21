@@ -15,6 +15,9 @@ let regs = ["%rdi"; "%rsi"; "%rdx"; "%rcx"; "%r8"; "%r9"]
 let lblno = ref 0
 let genlblno () = lblno := !lblno+1; !lblno
 
+let cur_lbl = ref ""
+let cur_end_lbl = ref ""
+
 let rec string_of_op = function
 	  | Add -> "add %rax, %rbx\n"
 	  | Sub -> "sub %rax, %rbx\n"
@@ -122,19 +125,27 @@ let rec x86gen_exp symt = function
                        printlbl lbl;
                        x86gen_exp symt e'';
                        printlbl endlbl
-  | While (e, e') -> let lbl = "LOOP"^(string_of_int (genlblno())) in
-                     let endlbl = "END_"^lbl in
-                     printlbl lbl;
+  | While (e, e') -> let temp_cur_lbl = !cur_lbl in
+										 let temp_cur_end_lbl = !cur_end_lbl in
+									   cur_lbl := "LOOP"^(string_of_int (genlblno()));
+                     cur_end_lbl := "END_"^(!cur_lbl);
+                     printlbl !cur_lbl;
                      x86gen_exp symt e;
                      bcheck ();
-                     jle endlbl;
+                     jle !cur_end_lbl;
                      x86gen_exp symt e';
-                     jmp lbl;
-                     printlbl endlbl
+                     jmp !cur_lbl;
+                     printlbl !cur_end_lbl;
+										 cur_lbl := temp_cur_lbl;
+										 cur_end_lbl := temp_cur_end_lbl
   | Deref e -> x86gen_exp symt e;
                deref ();
                sp := !sp + 1
   | Return e -> x86gen_exp symt e
+	| Break -> if !cur_end_lbl <> "" then jmp !cur_end_lbl
+						 else failwith "Unable to match - Control statement outside loop"
+	| Continue -> if !cur_lbl <> "" then jmp !cur_lbl
+								else failwith "Unable to match - Control statement outside loop"
   | _ -> failwith "Unable to Compile"
 
 (* Stack frame generation *)
