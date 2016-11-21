@@ -7,6 +7,8 @@ let funs = Hashtbl.create 100
 (* Instruction Set *)
 let ram = Hashtbl.create 103
 let acc = ref 0
+let break = ref false
+let cont = ref false
 
 let fun_of_op = function
 	  | Add -> (+)
@@ -72,7 +74,10 @@ let rec inter_exp symt = function
                       stack_pointer := addr1;
                       heap_pointer := hbtemp;
                       addr1
-  | Application (s, args) -> inter_fundef (s, args) symt
+  | Application (s, args) -> let res = inter_fundef (s, args) symt in
+														 if !cont || !break
+														 then failwith "Unable to match - Constrol statement outside loop"
+														 else res
   | Identifier s -> let addr = lookup s symt in
                     let addr' = newaddr() in
                     mv addr' addr;
@@ -105,14 +110,16 @@ let rec inter_exp symt = function
                      if !acc = 1 then (let raddr = inter_exp symt e' in
                                         let addr = inter_exp symt e in
                                         cmp addr 1;
-                                        if !acc = 1 then inter_exp symt exp
-                                        else raddr)
+                                        if !acc = 1 && not !break then (cont := false; inter_exp symt exp)
+                                        else (break := false; cont := false; raddr))
                      else 2
   | Deref e -> let addr = inter_exp symt e in
                ld addr;
                mvfa addr;
                addr
   | Return e -> inter_exp symt e
+	| Break -> break := true; 2
+	| Continue -> cont := true; 2
   | _ -> failwith "Unable to Interpret"
 
 (* Function interpretation *)
@@ -138,4 +145,6 @@ let rec inter_prog prog =
   replace ram 2 0;
   match prog with
   | (name, args, exp)::prog -> replace funs name (args, exp); inter_prog prog
-	| _ -> find ram (inter_fundef ("main", []) [])
+	| _ -> let res = (inter_fundef ("main", []) []) in if !cont || !break
+										then failwith "Unable to match - Constrol statement outside loop"
+										else find ram res
