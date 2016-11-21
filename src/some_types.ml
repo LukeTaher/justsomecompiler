@@ -22,6 +22,8 @@ type expression =
   | Let of string * expression * expression (* const int x = e; e *)
   | New of string * expression * expression (* const int x = e; e *)
   | Return of expression (* return e *)
+  | Break
+  | Continue
 
 type fundef = string * string list * expression (* x(e){e} *)
 
@@ -102,6 +104,8 @@ let rec string_of_expression expr depth =
                         tab_string (depth) ^
                         ")"
     | Return e -> "Return (" ^ string_of_expression e (depth+1) ^ ")"
+    | Break -> "Break"
+    | Continue -> "Continue"
 
 and string_of_params = function
   | [] -> ""

@@ -10,6 +10,8 @@ open Some_types
 %token IF
 %token ELSE
 %token WHILE
+%token BREAK
+%token CONT
 
 (* Functions *)
 %token RINT
@@ -53,7 +55,6 @@ open Some_types
 (* End of file *)
 %token EOF
 
-
 (* Derivation and precedence rules *)
 %left OR
 %left AND
@@ -76,8 +77,8 @@ top:
 
 (* functions - program contents *)
 fundef:
-	| s = IDENT; LBRACK; ss = separated_list(COMMA, IDENT); RBRACK; 
-		  LBRACE; e = exp; RBRACE										{(s, ss, e)} 
+	| s = IDENT; LBRACK; ss = separated_list(COMMA, IDENT); RBRACK;
+		  LBRACE; e = exp; RBRACE										{(s, ss, e)}
 
 (* expressions - function contents *)
 exp:
@@ -140,3 +141,5 @@ apps:
 	  ELSE; LBRACE; f = exp; RBRACE 								{If(v, e, f)}
 	| WHILE; LBRACK; v = value; RBRACK; LBRACE; e = exp; RBRACE	{While(v, e)}
 	| FUN; ss = separated_list(COMMA, IDENT); ARROW; LBRACK; e = exp; RBRACK  			{Lambda(ss, e)}
+	| BREAK {Break}
+	| CONT {Continue}

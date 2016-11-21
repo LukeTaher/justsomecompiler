@@ -9,7 +9,7 @@ let white = [' ' '\t']+
 let newline = '\r' | '\n' | "\r\n"
 let comment = "/*"[^'*''/']*"*/"
 
-rule read = 
+rule read =
 	parse
 	| white		   {read lexbuf}
 	| newline	   {read lexbuf}
@@ -24,6 +24,8 @@ rule read =
 	| "var"		   {VAR}
 	| "fun"		   {FUN}
 	| "return"	   {RETURN}
+	| "break"	   {BREAK}
+	| "continue"	   {CONT}
 	| string 	   {IDENT (Lexing.lexeme lexbuf)}
 	| "->"		   {ARROW}
 	| "&&"		   {AND}
@@ -42,9 +44,9 @@ rule read =
 	| '}'		   {RBRACE}
 	| '+'		   {ADD}
 	| '-'		   {SUB}
-	| '*'		   {MUL}	
+	| '*'		   {MUL}
 	| '/'		   {DIV}
 	| ','		   {COMMA}
 	| ';'		   {SEMCO}
-	| _			   {raise (SyntaxError ("Unexpected char: " ^ Lexing.lexeme lexbuf))}	
+	| _			   {raise (SyntaxError ("Unexpected char: " ^ Lexing.lexeme lexbuf))}
 	| eof		   {EOF}
