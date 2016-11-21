@@ -130,7 +130,9 @@ let rec cgen_exp symt = function
                        stack_pointer := addr1;
                        printlbl endlbl;
                        addr1
-  | While (e, e') ->  let addr1 = cgen_exp symt e in
+  | While (e, e') ->  let temp_cur_lbl = !cur_lbl in
+											let temp_cur_end_lbl = !cur_end_lbl in
+											let addr1 = cgen_exp symt e in
                       cur_lbl := "WHILE"^(string_of_int (genlblno()));
                       cur_end_lbl := "END_"^(!cur_lbl);
                       let addr3 = newaddr() in
@@ -143,8 +145,8 @@ let rec cgen_exp symt = function
                       mv addr3 addr2;
                       jmp !cur_lbl;
                       printlbl !cur_end_lbl;
-											cur_lbl := "";
-											cur_end_lbl := "";
+											cur_lbl := temp_cur_lbl;
+											cur_end_lbl := temp_cur_end_lbl;
                       addr3
   | Deref e -> let addr = cgen_exp symt e in
                ld addr;
