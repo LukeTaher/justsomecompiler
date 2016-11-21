@@ -128,5 +128,5 @@ let rec eval_prog = function
 	| (name, args, exp)::prog -> Hashtbl.replace funs name (args, exp); eval_prog prog
 	| _ -> let res = eval_fundef ("main", []) [] in
 				 if !cont || !break
-				 then failwith "Unable to match - Constrol statement outside loop"
+				 then failwith "Unable to match - Control statement outside loop"
 				 else res

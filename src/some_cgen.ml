@@ -10,6 +10,9 @@ let code = Buffer.create 100
 (* Instruction Set *)
 let acc = ref 0
 
+let cur_lbl = ref ""
+let cur_end_lbl = ref ""
+
 let lblno = ref 0
 let genlblno () = lblno := !lblno+1; !lblno
 
@@ -128,24 +131,30 @@ let rec cgen_exp symt = function
                        printlbl endlbl;
                        addr1
   | While (e, e') ->  let addr1 = cgen_exp symt e in
-                      let lbl = "WHILE"^(string_of_int (genlblno())) in
-                      let endlbl = "END_"^lbl in
+                      cur_lbl := "WHILE"^(string_of_int (genlblno()));
+                      cur_end_lbl := "END_"^(!cur_lbl);
                       let addr3 = newaddr() in
                       ldc 0;
                       st addr3;
-                      printlbl lbl;
+                      printlbl !cur_lbl;
                       cmp addr1 1;
-                      jmpz endlbl;
+                      jmpz !cur_end_lbl;
                       let addr2 = cgen_exp symt e' in
                       mv addr3 addr2;
-                      jmp lbl;
-                      printlbl endlbl;
+                      jmp !cur_lbl;
+                      printlbl !cur_end_lbl;
+											cur_lbl := "";
+											cur_end_lbl := "";
                       addr3
   | Deref e -> let addr = cgen_exp symt e in
                ld addr;
                mvfa addr;
                addr
   | Return e -> cgen_exp symt e
+	| Break -> if !cur_end_lbl <> "" then (jmp !cur_end_lbl; 0)
+						 else failwith "Unable to match - Control statement outside loop"
+	| Continue -> if !cur_lbl <> "" then (jmp !cur_lbl; 0)
+						    else failwith "Unable to match - Control statement outside loop"
   | _ -> failwith "Unable to Interpret"
 
 (* Function generation *)
