@@ -3,6 +3,8 @@ open Printf
 
 (* Eval step count *)
 let count = ref 0
+let break = ref false
+let cont = ref false
 
 (* Result to string *)
 let rec string_of_eval = function
@@ -71,10 +73,13 @@ let rec eval_exp env exp =
 						let v' = eval_exp ((s, addr)::env) e' in
 						Hashtbl.remove !store addr;
 						v'
-	| Application (s, args) -> eval_fundef (s, List.map (eval_exp env) args) env
+	| Application (s, args) -> let res = eval_fundef (s, List.map (eval_exp env) args) env in
+														 if !cont || !break
+														 then failwith "Unable to match - Constrol statement outside loop"
+														 else res
 	| Identifier s -> lookup env s
-	| Seq (e, e') -> eval_exp env e |> ignore;
-					 eval_exp env e'
+	| Seq (e, e') -> let res = eval_exp env e in
+					 if not !break && not !cont then eval_exp env e' else res
 	| Lambda (args, e') -> Function (args, e')
 	| Asg (e, e') -> let left = eval_exp env e in
 					 let right = eval_exp env e' in
@@ -90,10 +95,14 @@ let rec eval_exp env exp =
 	| While (e, e') -> let branch = bool_of_value (eval_exp env e) in
 							if branch then (let res = eval_exp env e' in
 										   	let rebranch = bool_of_value (eval_exp env e) in
-										   		if rebranch then eval_exp env (While (e, e')) else res)
+										   		if rebranch && not !break
+													then (cont := false; eval_exp env (While (e, e')))
+													else (break := false; cont := false; res))
 							else Unit ()
 	| Deref e -> store_fetch (eval_exp env e)
 	| Return e -> eval_exp env e
+	| Break -> break := true; Unit ()
+	| Continue -> cont := true; Unit ()
 
 (* Function evaluation *)
 and eval_fundef (name, argvs) env =
@@ -117,4 +126,7 @@ and lambda_fetch name env =
 (* Program evaluation *)
 let rec eval_prog = function
 	| (name, args, exp)::prog -> Hashtbl.replace funs name (args, exp); eval_prog prog
-	| _ -> eval_fundef ("main", []) []
+	| _ -> let res = eval_fundef ("main", []) [] in
+				 if !cont || !break
+				 then failwith "Unable to match - Constrol statement outside loop"
+				 else res
