@@ -82,7 +82,8 @@ let rec inter_exp symt = function
                     let addr' = newaddr() in
                     mv addr' addr;
                     addr'
-  | Seq (e, e') -> (inter_exp symt e) |> ignore; (inter_exp symt e')
+  | Seq (e, e') -> let res = inter_exp symt e in
+					 				 if not !break && not !cont then inter_exp symt e' else res
   (* | Lambda (args, e') -> *)
   | Asg (e, e') -> let addr1 = inter_exp symt e in
                    let addr2 = inter_exp symt e' in
