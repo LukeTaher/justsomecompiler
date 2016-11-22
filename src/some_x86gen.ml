@@ -92,33 +92,34 @@ let rec x86gen_exp symt = function
                   call "print"
   | Let (s, e, e') -> x86gen_exp symt e;
                       x86gen_exp ((s, !sp) :: symt) e';
-                      ilet ()
+                      ilet ();
+											sp := !sp - 1
   | New (s, e, e') -> x86gen_exp symt e;
                       lea !sp;
                       sp := !sp + 1;
                       x86gen_exp ((s, !sp) :: symt) e'
-  | Application (s, args) -> x86gen_storeargs (List.rev args) regs symt; call s; str "%rax"; sp := !sp + 1
+  | Application (s, args) -> x86gen_storeargs (List.rev args) regs symt;
+														 call s; str "%rax"; sp := !sp + 1
   | Identifier s -> let addr = lookup s symt in
                     id addr;
                     sp := !sp + 1
   | Seq (e, e') -> x86gen_exp symt e;
-                   x86gen_exp symt e'
+                   x86gen_exp symt e';
   (* | Lambda (args, e') -> *)
   | Asg (e, e') -> x86gen_exp symt e;
                    x86gen_exp symt e';
-                   asg ();
-                   sp := !sp - 2
+                   asg ()
   | Operation (oper, e, e') -> x86gen_exp symt e;
                                x86gen_exp symt e';
                                op oper;
                                sp := !sp - 1
   | Negation e -> x86gen_exp symt e;
-                  neg ();
-                  sp := !sp - 1
+                  neg ()
   | If (e, e', e'') -> let lbl = "BRANCH"^(string_of_int (genlblno())) in
                        let endlbl = "END_"^lbl in
                        x86gen_exp symt e;
                        bcheck ();
+											 sp := !sp - 1;
                        jle lbl;
                        x86gen_exp symt e';
                        jmp endlbl;
@@ -132,6 +133,7 @@ let rec x86gen_exp symt = function
                      printlbl !cur_lbl;
                      x86gen_exp symt e;
                      bcheck ();
+										 sp := !sp - 1;
                      jle !cur_end_lbl;
                      x86gen_exp symt e';
                      jmp !cur_lbl;
@@ -139,8 +141,7 @@ let rec x86gen_exp symt = function
 										 cur_lbl := temp_cur_lbl;
 										 cur_end_lbl := temp_cur_end_lbl
   | Deref e -> x86gen_exp symt e;
-               deref ();
-               sp := !sp + 1
+               deref ()
   | Return e -> x86gen_exp symt e
 	| Break -> if !cur_end_lbl <> "" then jmp !cur_end_lbl
 						 else failwith "Unable to match - Control statement outside loop"
