@@ -1,0 +1,26 @@
+[
+("main", [],
+	Operation (Add, Operation (Add, Operation (Add, Application (a, []), Const 3), Const 2), Const 1)
+);
+("a", [],
+	Application (b, [])
+);
+("b", [],
+	Application (c, [])
+);
+("c", [],
+	Application (d, [])
+);
+("d", [],
+	Operation (Add, Const 5, Readint)
+);
+("e", [],
+	Const 5
+);
+("f", [],
+	Const 5
+);
+("g", [],
+	Const 5
+)
+]

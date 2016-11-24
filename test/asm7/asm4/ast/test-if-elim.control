@@ -1,0 +1,15 @@
+[
+("main", [],
+	Let ("x", Const 10,
+		Let ("y", Const 10,
+			If (Operation (Eq, Identifier "x", Identifier "y"),
+				If (Operation (Eq, Readint, Const 0),
+					Operation (Sub, Identifier "x", Const 9),
+					Const 0
+				),
+				Const 0
+			)
+		)
+	)
+)
+]

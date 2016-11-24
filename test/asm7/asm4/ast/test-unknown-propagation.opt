@@ -1,0 +1,9 @@
+[
+("main", [],
+	Let ("a", Readint,
+		Let ("b", Readint,
+			Operation (Add, Operation (Add, Const 20, Identifier "b"), Identifier "a")
+		)
+	)
+)
+]

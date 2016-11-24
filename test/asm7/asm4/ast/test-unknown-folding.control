@@ -1,0 +1,47 @@
+[
+("main", [],
+	Operation (Add, Operation (Add, Operation (Add, Application (a, []), Const 3), Const 2), Const 1)
+);
+("a", [],
+	If (Const 1,
+		Application (b, []),
+		Const 10
+	)
+);
+("b", [],
+	If (Const 1,
+		Application (c, []),
+		Const 10
+	)
+);
+("c", [],
+	If (Const 1,
+		Application (d, []),
+		Const 10
+	)
+);
+("d", [],
+	If (Const 1,
+		Operation (Add, Application (e, []), Readint),
+		Const 10
+	)
+);
+("e", [],
+	If (Const 1,
+		Application (f, []),
+		Const 10
+	)
+);
+("f", [],
+	If (Const 1,
+		Application (g, []),
+		Const 10
+	)
+);
+("g", [],
+	If (Const 1,
+		Const 5,
+		Const 10
+	)
+)
+]

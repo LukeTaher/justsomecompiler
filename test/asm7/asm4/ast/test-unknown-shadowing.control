@@ -1,0 +1,11 @@
+[
+("main", [],
+	Let ("x", Const 10,
+		Let ("x", Readint,
+			Let ("x", Const 1,
+				Identifier "x"
+			)
+		)
+	)
+)
+]

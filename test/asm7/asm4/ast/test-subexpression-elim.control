@@ -1,0 +1,15 @@
+[
+("main", [],
+	Let ("a", Readint,
+		Let ("b", Readint,
+			Let ("c", Const 5,
+				Let ("x", Operation (Add, Identifier "a", Operation (Div, Operation (Mul, Operation (Mul, Operation (Mul, Identifier "b", Identifier "a"), Identifier "b"), Identifier "c"), Identifier "a")),
+					Let ("y", Operation (Add, Identifier "a", Operation (Div, Operation (Mul, Operation (Mul, Operation (Mul, Identifier "b", Identifier "a"), Identifier "b"), Identifier "c"), Identifier "a")),
+						Operation (Add, Identifier "y", Identifier "c")
+					)
+				)
+			)
+		)
+	)
+)
+]

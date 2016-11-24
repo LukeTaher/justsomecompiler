@@ -1,0 +1,10 @@
+main(){
+  const a = 2;
+  const b = 10;
+  if(a==2){
+    a*b
+  }
+  else{
+    b/a
+  }
+}

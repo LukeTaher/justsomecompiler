@@ -1,0 +1,12 @@
+/*
+  Tests constant propagation
+*/
+
+main(){
+  const a = 5;
+  const b = 4;
+  const c = 3;
+  const d = 2;
+  const e = 1;
+  a*b+c-d/e
+}

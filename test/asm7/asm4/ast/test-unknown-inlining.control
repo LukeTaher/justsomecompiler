@@ -1,0 +1,14 @@
+[
+("main", [],
+	Operation (Add, Operation (Add, Application (a, []), Application (b, [Const 0])), Application (c, [Const 2; Const 3]))
+);
+("a", [],
+	Const 5
+);
+("b", [x],
+	Identifier "x"
+);
+("c", [x; y],
+	Operation (Add, Operation (Add, Identifier "x", Identifier "y"), Readint)
+)
+]

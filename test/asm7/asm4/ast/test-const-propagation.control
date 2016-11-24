@@ -1,0 +1,15 @@
+[
+("main", [],
+	Let ("a", Const 5,
+		Let ("b", Const 4,
+			Let ("c", Const 3,
+				Let ("d", Const 2,
+					Let ("e", Const 1,
+						Operation (Sub, Operation (Add, Operation (Mul, Identifier "a", Identifier "b"), Identifier "c"), Operation (Div, Identifier "d", Identifier "e"))
+					)
+				)
+			)
+		)
+	)
+)
+]

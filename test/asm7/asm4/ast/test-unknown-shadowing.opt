@@ -1,0 +1,7 @@
+[
+("main", [],
+	Let ("x", Readint,
+		Const 1
+	)
+)
+]

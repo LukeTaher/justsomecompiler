@@ -1,0 +1,7 @@
+/*
+	Tests evaluation of operation chaining and precedence
+*/
+main(){
+	var i = 1 + 2 * 6 / (1 * 2) - 1;
+	~i
+}

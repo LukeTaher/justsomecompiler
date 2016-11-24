@@ -1,0 +1,56 @@
+[
+("main", [],
+	New ("x", Readint,
+		While (Operation (Le, Deref (Identifier "x"), Const 500),
+			If (Operation (Le, Deref (Identifier "x"), Const 500),
+				Let ("y", Operation (Mul, Deref (Identifier "x"), Const 10),
+					Let ("z", Operation (Add, Identifier "y", Const 900),
+						Seq (
+							Asg (Identifier "x", Operation (Add, Deref (Identifier "x"), Const 1)),
+							Identifier "z"
+						)
+					)
+				),
+				If (Operation (Le, Deref (Identifier "x"), Const 500),
+					Let ("y", Operation (Mul, Deref (Identifier "x"), Const 10),
+						Let ("z", Operation (Add, Identifier "y", Const 900),
+							Seq (
+								Asg (Identifier "x", Operation (Add, Deref (Identifier "x"), Const 1)),
+								Identifier "z"
+							)
+						)
+					),
+					If (Operation (Le, Deref (Identifier "x"), Const 500),
+						Let ("y", Operation (Mul, Deref (Identifier "x"), Const 10),
+							Let ("z", Operation (Add, Identifier "y", Const 900),
+								Seq (
+									Asg (Identifier "x", Operation (Add, Deref (Identifier "x"), Const 1)),
+									Identifier "z"
+								)
+							)
+						),
+						Seq (
+							Let ("y", Operation (Mul, Deref (Identifier "x"), Const 10),
+								Let ("z", Operation (Add, Identifier "y", Const 900),
+									Seq (
+										Asg (Identifier "x", Operation (Add, Deref (Identifier "x"), Const 1)),
+										Identifier "z"
+									)
+								)
+							),
+							Let ("y", Operation (Mul, Deref (Identifier "x"), Const 10),
+								Let ("z", Operation (Add, Identifier "y", Const 900),
+									Seq (
+										Asg (Identifier "x", Operation (Add, Deref (Identifier "x"), Const 1)),
+										Identifier "z"
+									)
+								)
+							)
+						)
+					)
+				)
+			)
+		)
+	)
+)
+]

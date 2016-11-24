@@ -1,0 +1,20 @@
+/*
+	Tests evaluation of fibonacci numbers
+*/
+main(){
+
+	/* series values */
+	var f = 0;
+	var g = 1;
+
+	/* iterator */
+	var i = 0;
+	var temp = 0;
+	while(~i < 12){
+		temp = ~f;
+		f = ~f + ~g;
+		g = ~temp;
+		i = ~i + 1;
+		~f
+	}
+}
