@@ -1,15 +1,12 @@
-### Assignment 6 Notes
+### Assignment 7 Notes
 - Compilation of:
-  - Constants
-  - Variables
   - If & While
-  - Functions with ∞ arguments
-  - Recursion
-- Generated executables in `test/asm6/executables`
-- Generated x86 assembly in `test/asm6/assembly`
+  - Break & Continue
+- Generated executables in `test/asm7/asmX/executables`
+- Generated x86 assembly in `test/asm7/asmX/assembly`
 
 
-*see asm6 test script for examples*
+*see asm7 test script for examples*
 
 ## About
 A compiler developed in OCaml with OCamllex and Menhir for the Compiler Construction module at the University of Birmingham. Intended to mimic a C-like syntax with functional characteristics.
