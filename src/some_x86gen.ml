@@ -32,36 +32,36 @@ let rec string_of_op = function
 	  | And -> "and %rax, %rbx\n"
 	  | Or -> "or %rax, %rbx\n"
 
-let st n = "pushq $" ^ (string_of_int n) ^ "\n" |> Buffer.add_string code
+let st n = sp := !sp + 1; "pushq $" ^ (string_of_int n) ^ "\n" |> Buffer.add_string code
 
-let str r = "pushq " ^ r ^ "\n" |> Buffer.add_string code
+let str r = sp := !sp + 1; "pushq " ^ r ^ "\n" |> Buffer.add_string code
 
-let sta addr = "pushq " ^ (-16 -8 * addr |> string_of_int) ^ "(%rbp)\n" |> Buffer.add_string code
+let sta addr = sp := !sp + 1;  "pushq " ^ (-16 -8 * addr |> string_of_int) ^ "(%rbp)\n" |> Buffer.add_string code
 
-let ldr r = "popq " ^ r ^ "\n" |> Buffer.add_string code
+let ldr r = sp := !sp - 1; "popq " ^ r ^ "\n" |> Buffer.add_string code
 
-let op oper = "popq %rax\n" ^ "popq %rbx \n" ^ (string_of_op oper) ^
+let op oper = sp := !sp - 1; "popq %rax\n" ^ "popq %rbx \n" ^ (string_of_op oper) ^
               "pushq %rbx\n" |> Buffer.add_string code
 
-let id addr = "movq " ^ (-16 -8 * addr |> string_of_int) ^ "(%rbp), %rax\n" ^
+let id addr = sp := !sp + 1; "movq " ^ (-16 -8 * addr |> string_of_int) ^ "(%rbp), %rax\n" ^
               "pushq %rax\n" |> Buffer.add_string code
 
-let ilet () = "popq %rax\n" ^ "popq %rbx\n" ^
+let ilet () = sp := !sp - 1; "popq %rax\n" ^ "popq %rbx\n" ^
               "pushq %rax\n" |> Buffer.add_string code
 
-let neg () = "popq %rax\n" ^ "neg %rax\n" ^
-             "push %rax\n" |> Buffer.add_string code
+let neg () = "popq %rax\n cmpq $0, %rax\n sete %al\n pushq %rax\n popq %rax\n" ^
+            "push %rax\n" |> Buffer.add_string code
 
-let lea addr = "leaq " ^ (-16 -8 * addr |> string_of_int) ^ "(%rbp), %rax\n" ^
+let lea addr = sp := !sp + 1; "leaq " ^ (-16 -8 * addr |> string_of_int) ^ "(%rbp), %rax\n" ^
                "pushq %rax\n" |> Buffer.add_string code
 
 let deref () = "popq %rax\n" ^ "movq (%rax), %rax\n" ^
                "pushq %rax\n" |> Buffer.add_string code
 
-let asg () = "popq %rax\n" ^ "popq %rbx\n" ^
-             "movq %rax, (%rbx)\n" |> Buffer.add_string code
+let asg () = sp := !sp - 1; "popq %rax\n" ^ "popq %rbx\n" ^
+             "movq %rax, (%rbx)\n pushq %rax\n" |> Buffer.add_string code
 
-let bcheck () = "popq %rax\n" ^ "cmpq $0, %rax\n" |> Buffer.add_string code
+let bcheck () = sp := !sp - 1; "popq %rax\n" ^ "cmpq $0, %rax\n" |> Buffer.add_string code
 
 let jle label = "jle " ^ label ^ "\n" |> Buffer.add_string code
 
@@ -75,6 +75,8 @@ let movr r r' = "movq " ^ r ^ ", (" ^ r' ^ ") \n" |> Buffer.add_string code
 
 let alc () = "subq	$8, %rsp\n" |> Buffer.add_string code
 
+let dalc () = "addq	$8, %rsp\n" |> Buffer.add_string code
+
 (* Address lookup *)
 let rec lookup s = function
   | [] -> failwith "Unable to match - Address out of bounds"
@@ -82,58 +84,55 @@ let rec lookup s = function
 
 (* Code generation *)
 let rec x86gen_exp symt = function
-  | Const i -> st i; sp := !sp + 1
-  | Readint -> call "read";
+  | Const i -> st i
+  | Readint ->
+							 call "read";
 							 str "%rax";
-							 sp := !sp + 1
   | Printint e -> x86gen_exp symt e;
                   ldr "%rdi";
-									sp := !sp - 1;
                   call "print"
   | Let (s, e, e') -> x86gen_exp symt e;
                       x86gen_exp ((s, !sp) :: symt) e';
-                      ilet ();
-											sp := !sp - 1
+                      ilet ()
   | New (s, e, e') -> x86gen_exp symt e;
                       lea !sp;
-                      sp := !sp + 1;
                       x86gen_exp ((s, !sp) :: symt) e'
   | Application (s, args) -> x86gen_storeargs (List.rev args) regs symt;
-														 call s; str "%rax"; sp := !sp + 1
+														 call s;
+														 str "%rax"
   | Identifier s -> let addr = lookup s symt in
-                    id addr;
-                    sp := !sp + 1
+                    id addr
   | Seq (e, e') -> x86gen_exp symt e;
                    x86gen_exp symt e';
-  (* | Lambda (args, e') -> *)
+									 ilet ()
   | Asg (e, e') -> x86gen_exp symt e;
                    x86gen_exp symt e';
                    asg ()
   | Operation (oper, e, e') -> x86gen_exp symt e;
                                x86gen_exp symt e';
-                               op oper;
-                               sp := !sp - 1
+                               op oper
   | Negation e -> x86gen_exp symt e;
                   neg ()
   | If (e, e', e'') -> let lbl = "BRANCH"^(string_of_int (genlblno())) in
                        let endlbl = "END_"^lbl in
                        x86gen_exp symt e;
                        bcheck ();
-											 sp := !sp - 1;
                        jle lbl;
+											 let old_sp = !sp in
                        x86gen_exp symt e';
                        jmp endlbl;
                        printlbl lbl;
+											 sp := old_sp;
                        x86gen_exp symt e'';
                        printlbl endlbl
   | While (e, e') -> let temp_cur_lbl = !cur_lbl in
 										 let temp_cur_end_lbl = !cur_end_lbl in
 									   cur_lbl := "LOOP"^(string_of_int (genlblno()));
                      cur_end_lbl := "END_"^(!cur_lbl);
+										 st 0;
                      printlbl !cur_lbl;
                      x86gen_exp symt e;
                      bcheck ();
-										 sp := !sp - 1;
                      jle !cur_end_lbl;
                      x86gen_exp symt e';
                      jmp !cur_lbl;
@@ -154,7 +153,7 @@ and x86gen_storeargs es rs symt =
   match (es, rs) with
   | ([], _) -> ()
   | (es, []) -> x86gen_storeargs' (List.rev es) symt
-  | (e::es, r::rs) -> x86gen_exp symt e; ldr r; sp := !sp - 1; x86gen_storeargs es rs symt
+  | (e::es, r::rs) -> x86gen_exp symt e; ldr r; x86gen_storeargs es rs symt
 
 and x86gen_storeargs' es symt =
   match es with
@@ -164,8 +163,8 @@ and x86gen_storeargs' es symt =
 let rec x86gen_loadargs n rs i =
   match (n, rs) with
   | (0, _) -> ()
-  | (n, []) -> sta (-i); sp := !sp + 1; x86gen_loadargs (n-1) [] (i+2)
-  | (n, r::rs) -> str r; sp := !sp + 1; x86gen_loadargs (n-1) rs i
+  | (n, []) -> sta (-i); x86gen_loadargs (n-1) [] (i+2)
+  | (n, r::rs) -> str r; x86gen_loadargs (n-1) rs i
 
 (* Function generation *)
 let rec x86gen_fundef n = function

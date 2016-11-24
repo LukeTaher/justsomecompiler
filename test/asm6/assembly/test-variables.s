@@ -83,6 +83,7 @@ pushq %rax
 popq %rax
 popq %rbx
 movq %rax, (%rbx)
+ pushq %rax
 movq -32(%rbp), %rax
 pushq %rax
 popq %rax
@@ -97,6 +98,9 @@ popq %rax
 popq %rbx 
 add %rax, %rbx
 pushq %rbx
+popq %rax
+popq %rbx
+pushq %rax
 	pop %rdi
 	callq	_print
 	xorl	%edi, %edi

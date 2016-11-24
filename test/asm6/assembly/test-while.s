@@ -70,6 +70,7 @@ Ltmp8:
   pushq $0
 leaq -24(%rbp), %rax
 pushq %rax
+pushq $0
 LOOP1:
 movq -32(%rbp), %rax
 pushq %rax
@@ -101,12 +102,16 @@ pushq %rbx
 popq %rax
 popq %rbx
 movq %rax, (%rbx)
+ pushq %rax
 jmp LOOP1
 END_LOOP1:
 movq -32(%rbp), %rax
 pushq %rax
 popq %rax
 movq (%rax), %rax
+pushq %rax
+popq %rax
+popq %rbx
 pushq %rax
 	pop %rdi
 	callq	_print
