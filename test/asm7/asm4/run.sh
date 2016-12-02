@@ -13,7 +13,9 @@ do
 	    input="$(cat 'input/'$test.in)"
 	fi
 	../../../some_lang.native -x86 "$test" &> "assembly/$test.s"
-	gcc "assembly/$test.s" -o "executables/$test"
+	as "assembly/$test.s" -o "$test.o"
+	ld -lc -macosx_version_min "10.11" "$test.o" -o "executables/$test" 2> /dev/null
+	rm -f "$test.o"
 	printf "$input" | ./"executables/$test" &> "$test.out"
 	cmp -s "$test.out" "expected/$test.exp"
 	if [ $? -eq 0 ]; then
