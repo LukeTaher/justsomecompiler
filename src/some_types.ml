@@ -31,11 +31,11 @@ type program = fundef list
 
 (* Store data type *)
 type value =
-	| Bool of bool
-	| Integer of int
-	| Address of int
-	| Unit of unit
-	| Function of string list * expression
+  | Bool of bool
+  | Integer of int
+  | Address of int
+  | Unit of unit
+  | Function of string list * expression
 
 (* AST pretty print *)
 

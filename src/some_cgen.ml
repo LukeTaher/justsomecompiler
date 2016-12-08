@@ -17,17 +17,17 @@ let lblno = ref 0
 let genlblno () = lblno := !lblno+1; !lblno
 
 let string_of_op = function
-	  | Add -> "add"
-	  | Sub -> "sub"
-	  | Mul -> "mul"
-	  | Div -> "div"
-	  | Eq -> "eq"
-	  | Le -> "le"
-	  | Ge -> "ge"
-	  | Leq -> "leq"
-	  | Geq -> "geq"
-	  | And -> "and"
-	  | Or -> "or"
+    | Add -> "add"
+    | Sub -> "sub"
+    | Mul -> "mul"
+    | Div -> "div"
+    | Eq -> "eq"
+    | Le -> "le"
+    | Ge -> "ge"
+    | Leq -> "leq"
+    | Geq -> "geq"
+    | And -> "and"
+    | Or -> "or"
 
 let op (op, addr1, addr2) = "\t" ^ (string_of_op op) ^ " r" ^ (string_of_int addr1) ^
                             ", r" ^ (string_of_int addr2) ^ "\n"
@@ -100,7 +100,7 @@ let rec cgen_exp symt = function
   (* | Lambda (args, e') -> *)
   | Asg (e, e') -> let addr1 = cgen_exp symt e in
                    let addr2 = cgen_exp symt e' in
-									 ld addr1;
+                   ld addr1;
                    mvta addr2;
                    stack_pointer := addr1;
                    addr1
@@ -131,8 +131,8 @@ let rec cgen_exp symt = function
                        printlbl endlbl;
                        addr1
   | While (e, e') ->  let temp_cur_lbl = !cur_lbl in
-											let temp_cur_end_lbl = !cur_end_lbl in
-											let addr1 = cgen_exp symt e in
+                      let temp_cur_end_lbl = !cur_end_lbl in
+                      let addr1 = cgen_exp symt e in
                       cur_lbl := "WHILE"^(string_of_int (genlblno()));
                       cur_end_lbl := "END_"^(!cur_lbl);
                       let addr3 = newaddr() in
@@ -145,18 +145,18 @@ let rec cgen_exp symt = function
                       mv addr3 addr2;
                       jmp !cur_lbl;
                       printlbl !cur_end_lbl;
-											cur_lbl := temp_cur_lbl;
-											cur_end_lbl := temp_cur_end_lbl;
+                      cur_lbl := temp_cur_lbl;
+                      cur_end_lbl := temp_cur_end_lbl;
                       addr3
   | Deref e -> let addr = cgen_exp symt e in
                ld addr;
                mvfa addr;
                addr
   | Return e -> cgen_exp symt e
-	| Break -> if !cur_end_lbl <> "" then (jmp !cur_end_lbl; 0)
-						 else failwith "Unable to match - Control statement outside loop"
-	| Continue -> if !cur_lbl <> "" then (jmp !cur_lbl; 0)
-						    else failwith "Unable to match - Control statement outside loop"
+  | Break -> if !cur_end_lbl <> "" then (jmp !cur_end_lbl; 0)
+             else failwith "Unable to match - Control statement outside loop"
+  | Continue -> if !cur_lbl <> "" then (jmp !cur_lbl; 0)
+                else failwith "Unable to match - Control statement outside loop"
   | _ -> failwith "Unable to Interpret"
 
 (* Function generation *)

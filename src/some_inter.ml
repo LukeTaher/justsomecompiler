@@ -11,17 +11,17 @@ let break = ref false
 let cont = ref false
 
 let fun_of_op = function
-	  | Add -> (+)
-	  | Sub -> (-)
-	  | Mul -> ( * )
-	  | Div -> (/)
-	  | Eq -> (fun x y -> if x = y then 1 else 0)
-	  | Le -> (fun x y -> if x < y then 1 else 0)
-	  | Ge -> (fun x y -> if x > y then 1 else 0)
-	  | Leq -> (fun x y -> if x <= y then 1 else 0)
-	  | Geq -> (fun x y -> if x >= y then 1 else 0)
-	  | And -> (fun x y -> if x=1 && y=1 then 1 else 0)
-	  | Or -> (fun x y -> if x=1 || y=1 then 1 else 0)
+    | Add -> (+)
+    | Sub -> (-)
+    | Mul -> ( * )
+    | Div -> (/)
+    | Eq -> (fun x y -> if x = y then 1 else 0)
+    | Le -> (fun x y -> if x < y then 1 else 0)
+    | Ge -> (fun x y -> if x > y then 1 else 0)
+    | Leq -> (fun x y -> if x <= y then 1 else 0)
+    | Geq -> (fun x y -> if x >= y then 1 else 0)
+    | And -> (fun x y -> if x=1 && y=1 then 1 else 0)
+    | Or -> (fun x y -> if x=1 || y=1 then 1 else 0)
 
 let op (op, addr1, addr2) =
         acc := (fun_of_op op) (find ram addr1) (find ram addr2)
@@ -75,19 +75,19 @@ let rec inter_exp symt = function
                       heap_pointer := hbtemp;
                       addr1
   | Application (s, args) -> let res = inter_fundef (s, args) symt in
-														 if !cont || !break
-														 then failwith "Unable to match - Constrol statement outside loop"
-														 else res
+                             if !cont || !break
+                             then failwith "Unable to match - Constrol statement outside loop"
+                             else res
   | Identifier s -> let addr = lookup s symt in
                     let addr' = newaddr() in
                     mv addr' addr;
                     addr'
   | Seq (e, e') -> let res = inter_exp symt e in
-					 				 if not !break && not !cont then inter_exp symt e' else res
+                    if not !break && not !cont then inter_exp symt e' else res
   (* | Lambda (args, e') -> *)
   | Asg (e, e') -> let addr1 = inter_exp symt e in
                    let addr2 = inter_exp symt e' in
-									 ld addr1;
+                   ld addr1;
                    mvta addr2;
                    stack_pointer := addr1;
                    addr1
@@ -119,8 +119,8 @@ let rec inter_exp symt = function
                mvfa addr;
                addr
   | Return e -> inter_exp symt e
-	| Break -> break := true; 2
-	| Continue -> cont := true; 2
+  | Break -> break := true; 2
+  | Continue -> cont := true; 2
   | _ -> failwith "Unable to Interpret"
 
 (* Function interpretation *)
@@ -146,6 +146,6 @@ let rec inter_prog prog =
   replace ram 2 0;
   match prog with
   | (name, args, exp)::prog -> replace funs name (args, exp); inter_prog prog
-	| _ -> let res = (inter_fundef ("main", []) []) in if !cont || !break
-										then failwith "Unable to match - Constrol statement outside loop"
-										else find ram res
+  | _ -> let res = (inter_fundef ("main", []) []) in if !cont || !break
+                    then failwith "Unable to match - Constrol statement outside loop"
+                    else find ram res

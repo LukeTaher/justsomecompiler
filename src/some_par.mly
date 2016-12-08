@@ -73,73 +73,73 @@ open Some_types
 
 (* program *)
 top:
-	| prog = list(fundef); EOF	{prog}
+  | prog = list(fundef); EOF	{prog}
 
 (* functions - program contents *)
 fundef:
-	| s = IDENT; LBRACK; ss = separated_list(COMMA, IDENT); RBRACK;
-		  LBRACE; e = exp; RBRACE										{(s, ss, e)}
+  | s = IDENT; LBRACK; ss = separated_list(COMMA, IDENT); RBRACK;
+      LBRACE; e = exp; RBRACE										{(s, ss, e)}
 
 (* expressions - function contents *)
 exp:
-	| e = stmt 					{e}
-	| e = stmt; SEMCO; f = exp 		{Seq(e, f)}
-	| d = def 					{d}
-	| RETURN; v = def			{Return(v)}
-	| RETURN; e = stmt 			{Return(e)}
+  | e = stmt 					{e}
+  | e = stmt; SEMCO; f = exp 		{Seq(e, f)}
+  | d = def 					{d}
+  | RETURN; v = def			{Return(v)}
+  | RETURN; e = stmt 			{Return(e)}
 
 (* statements - expression contents *)
 stmt:
-	| v = value; ASG; tt = stmt	{Asg(v, tt)}
-	| v = value 					{v}
+  | v = value; ASG; tt = stmt	{Asg(v, tt)}
+  | v = value 					{v}
 
 
 (* values - statement contents *)
 value:
-	| LBRACK; v = value; RBRACK {v}
-	| a = apps 	 				{a}
-	| m = mathexp				{m}
-	| b = boolexp 				{b}
-	| v = vars 					{v}
-	| LBRACK; d = def; RBRACK	{d}
+  | LBRACK; v = value; RBRACK {v}
+  | a = apps 	 				{a}
+  | m = mathexp				{m}
+  | b = boolexp 				{b}
+  | v = vars 					{v}
+  | LBRACK; d = def; RBRACK	{d}
 
 (* variable definitions - expression contents *)
 def:
-	| CVAR; s = IDENT; ASG; st = stmt; SEMCO; e = exp 	{Let(s,st,e)}
-	| VAR; s = IDENT; ASG; st = stmt; SEMCO; e = exp 	{New(s,st,e)}
+  | CVAR; s = IDENT; ASG; st = stmt; SEMCO; e = exp 	{Let(s,st,e)}
+  | VAR; s = IDENT; ASG; st = stmt; SEMCO; e = exp 	{New(s,st,e)}
 
 (* variables - expression contents *)
 vars:
-	| s = IDENT  				{Identifier s}
-	| DEREF; v = vars 			{Deref(v)}
+  | s = IDENT  				{Identifier s}
+  | DEREF; v = vars 			{Deref(v)}
 
 (* math expressions - value contents *)
 mathexp:
-	| i = CONST 			  	  {Const(i)}
-	| m = value; ADD; n = value   {Operation(Add, m, n)}
-	| m = value; SUB; n = value   {Operation(Sub, m, n)}
-	| m = value; MUL; n = value   {Operation(Mul, m, n)}
-	| m = value; DIV; n = value   {Operation(Div, m, n)}
+  | i = CONST 			  	  {Const(i)}
+  | m = value; ADD; n = value   {Operation(Add, m, n)}
+  | m = value; SUB; n = value   {Operation(Sub, m, n)}
+  | m = value; MUL; n = value   {Operation(Mul, m, n)}
+  | m = value; DIV; n = value   {Operation(Div, m, n)}
 
 (* bool expressions - value contents *)
 boolexp:
-	| v = value; EQ; w = value 			{Operation(Eq, v, w)}
-	| v = value; GEQ; w = value 		{Operation(Geq, v, w)}
-	| v = value; LEQ; w = value 		{Operation(Leq, v, w)}
-	| v = value; GE; w = value 			{Operation(Ge, v, w)}
-	| v = value; LE; w = value 			{Operation(Le, v, w)}
-	| b = value; AND; c = value 		{Operation(And, b, c)}
-	| b = value; OR; c = value 			{Operation(Or, b, c)}
-	| NEG; LBRACK; b = value; RBRACK	{Negation(b)}
+  | v = value; EQ; w = value 			{Operation(Eq, v, w)}
+  | v = value; GEQ; w = value 		{Operation(Geq, v, w)}
+  | v = value; LEQ; w = value 		{Operation(Leq, v, w)}
+  | v = value; GE; w = value 			{Operation(Ge, v, w)}
+  | v = value; LE; w = value 			{Operation(Le, v, w)}
+  | b = value; AND; c = value 		{Operation(And, b, c)}
+  | b = value; OR; c = value 			{Operation(Or, b, c)}
+  | NEG; LBRACK; b = value; RBRACK	{Negation(b)}
 
 (* application expressions - value contents *)
 apps:
-	| s = IDENT; LBRACK; ss = separated_list(COMMA, value); RBRACK	{Application(s, ss)}
-	| RINT; LBRACK; RBRACK 										    {Readint}
-	| PINT; LBRACK; v = value; RBRACK 							{Printint v}
-	| IF; LBRACK; v = value; RBRACK; LBRACE; e = exp; RBRACE;
-	  ELSE; LBRACE; f = exp; RBRACE 								{If(v, e, f)}
-	| WHILE; LBRACK; v = value; RBRACK; LBRACE; e = exp; RBRACE	{While(v, e)}
-	| FUN; ss = separated_list(COMMA, IDENT); ARROW; LBRACK; e = exp; RBRACK  			{Lambda(ss, e)}
-	| BREAK {Break}
-	| CONT {Continue}
+  | s = IDENT; LBRACK; ss = separated_list(COMMA, value); RBRACK	{Application(s, ss)}
+  | RINT; LBRACK; RBRACK 										    {Readint}
+  | PINT; LBRACK; v = value; RBRACK 							{Printint v}
+  | IF; LBRACK; v = value; RBRACK; LBRACE; e = exp; RBRACE;
+    ELSE; LBRACE; f = exp; RBRACE 								{If(v, e, f)}
+  | WHILE; LBRACK; v = value; RBRACK; LBRACE; e = exp; RBRACE	{While(v, e)}
+  | FUN; ss = separated_list(COMMA, IDENT); ARROW; LBRACK; e = exp; RBRACK  			{Lambda(ss, e)}
+  | BREAK {Break}
+  | CONT {Continue}

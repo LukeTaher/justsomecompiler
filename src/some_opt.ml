@@ -14,9 +14,9 @@ let newref () = addr:=!addr+1; !addr
 
 (* Environment lookup *)
 let rec lookup env s =
-	match env with
-	| (s',v)::env -> if s = s' then Some v else lookup env s
-	| _ -> None
+  match env with
+  | (s',v)::env -> if s = s' then Some v else lookup env s
+  | _ -> None
 
 (* Find shadowed vars *)
 let rec shadow_check' = function
@@ -100,18 +100,18 @@ let rec elim_exp = function
 
 (* Operation optimisation *)
 let opt_op op e e' =
-	match (op, e, e') with
-	  | (Add, Const e, Const e') -> Const (e+e')
-	  | (Sub, Const e, Const e') -> Const (e-e')
-	  | (Mul, Const e, Const e') -> Const (e*e')
-	  | (Div, Const e, Const e') -> Const (e/e')
-	  | (Eq, Const e, Const e') -> if (e==e') then Const 1 else Const 0
-	  | (Le, Const e, Const e') -> if (e<e') then Const 1 else Const 0
-	  | (Ge, Const e, Const e') -> if (e>e') then Const 1 else Const 0
-	  | (Leq, Const e, Const e') -> if (e<=e') then Const 1 else Const 0
-	  | (Geq, Const e, Const e') -> if (e>=e') then Const 1 else Const 0
-	  | (And, Const e, Const e') -> if e > 0 && e' > 0 then Const 1 else Const 0
-	  | (Or, Const e, Const e') -> if e > 0 || e' > 0 then Const 1 else Const 0
+  match (op, e, e') with
+    | (Add, Const e, Const e') -> Const (e+e')
+    | (Sub, Const e, Const e') -> Const (e-e')
+    | (Mul, Const e, Const e') -> Const (e*e')
+    | (Div, Const e, Const e') -> Const (e/e')
+    | (Eq, Const e, Const e') -> if (e==e') then Const 1 else Const 0
+    | (Le, Const e, Const e') -> if (e<e') then Const 1 else Const 0
+    | (Ge, Const e, Const e') -> if (e>e') then Const 1 else Const 0
+    | (Leq, Const e, Const e') -> if (e<=e') then Const 1 else Const 0
+    | (Geq, Const e, Const e') -> if (e>=e') then Const 1 else Const 0
+    | (And, Const e, Const e') -> if e > 0 && e' > 0 then Const 1 else Const 0
+    | (Or, Const e, Const e') -> if e > 0 || e' > 0 then Const 1 else Const 0
     | (op, e, e') -> Operation (op, e, e')
 
 (* Expression optimisation *)
@@ -124,16 +124,16 @@ let rec opt_exp env = function
                         | _ as v -> Let (s, v, (opt_exp env e')))
   | New (s, e, e') -> let v = opt_exp env e in New (s, v, (opt_exp env e'))
   | Application (s, args) -> let fun_opt = (s, List.map (opt_exp env) args) in
-														 let (s', args') = fun_opt in
-														 (try (Hashtbl.find mem fun_opt)
- 															with Not_found -> (if !cur_fun == s
- 																								 then let res = Application (s', args') in
- 																								 			Hashtbl.replace mem fun_opt res;
- 																											res
-                        													 else let res = opt_fundef fun_opt in
- 																										  Hashtbl.replace mem fun_opt res;
- 																										  res))
-	| Identifier s -> (match (lookup env s) with
+                             let (s', args') = fun_opt in
+                             (try (Hashtbl.find mem fun_opt)
+                               with Not_found -> (if !cur_fun == s
+                                                  then let res = Application (s', args') in
+                                                        Hashtbl.replace mem fun_opt res;
+                                                       res
+                                                   else let res = opt_fundef fun_opt in
+                                                       Hashtbl.replace mem fun_opt res;
+                                                       res))
+  | Identifier s -> (match (lookup env s) with
                     | Some x -> x
                     | _ -> Identifier s)
   | Seq (e, e') -> let v = opt_exp env e in
@@ -161,7 +161,7 @@ and opt_fundef (name, argvs) =
   (let (args, exp) = (Hashtbl.find funs name) in
                       (cur_fun := name;
                       let res = elim_exp (opt_exp (List.map2 (fun x y -> (x, y)) args argvs) exp) in
-                    	match res with
+                      match res with
                       | Const i -> Const i
                       | _ -> Application (name, argvs)))
   with Not_found -> Application (name, argvs)

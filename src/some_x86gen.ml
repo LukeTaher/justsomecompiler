@@ -21,18 +21,18 @@ let cur_lbl = ref ""
 let cur_end_lbl = ref ""
 
 let rec string_of_op = function
-	  | Add -> "add %rax, %rbx\n"
-	  | Sub -> "sub %rax, %rbx\n"
-	  | Mul -> "imul %rax, %rbx\n"
-	  | Div -> "pushq %rax\n pushq %rbx\n popq %rax\n popq %rbx\n cltd\n
-							div %rbx\n movq %rax, %rbx\n"
-	  | Eq -> "cmpq %rax, %rbx\n sete %al\n movq %rax, %rbx\n"
-	  | Le -> "cmpq %rax, %rbx\n setl %al\n movq %rax, %rbx\n"
-	  | Ge -> "cmpq %rax, %rbx\n setg %al\n movq %rax, %rbx\n"
-		| Leq -> "cmpq %rax, %rbx\n setle %al\n movq %rax, %rbx\n"
-	  | Geq -> "cmpq %rax, %rbx\n setge %al\n movq %rax, %rbx\n"
-	  | And -> "and %rax, %rbx\n"
-	  | Or -> "or %rax, %rbx\n"
+    | Add -> "add %rax, %rbx\n"
+    | Sub -> "sub %rax, %rbx\n"
+    | Mul -> "imul %rax, %rbx\n"
+    | Div -> "pushq %rax\n pushq %rbx\n popq %rax\n popq %rbx\n cltd\n
+              div %rbx\n movq %rax, %rbx\n"
+    | Eq -> "cmpq %rax, %rbx\n sete %al\n movq %rax, %rbx\n"
+    | Le -> "cmpq %rax, %rbx\n setl %al\n movq %rax, %rbx\n"
+    | Ge -> "cmpq %rax, %rbx\n setg %al\n movq %rax, %rbx\n"
+    | Leq -> "cmpq %rax, %rbx\n setle %al\n movq %rax, %rbx\n"
+    | Geq -> "cmpq %rax, %rbx\n setge %al\n movq %rax, %rbx\n"
+    | And -> "and %rax, %rbx\n"
+    | Or -> "or %rax, %rbx\n"
 
 let st n = sp := !sp + 1; "pushq $" ^ (string_of_int n) ^ "\n" |> Buffer.add_string code
 
@@ -89,51 +89,51 @@ let rec lookup s = function
   | (s', addr)::symt -> if s = s' then addr else lookup s symt
 
 let rec in_scope s = function
-	| [] -> false
-	| (s', addr)::symt -> if s = s' then true else in_scope s symt
+  | [] -> false
+  | (s', addr)::symt -> if s = s' then true else in_scope s symt
 
 let rec exists s = function
-	| [] -> false
-	| s'::fs -> if s = s' then true else exists s fs
+  | [] -> false
+  | s'::fs -> if s = s' then true else exists s fs
 
 (* Code generation *)
 let rec x86gen_exp symt = function
   | Const i -> st i
   | Readint -> call "read";
-							 str "%rax"
+               str "%rax"
   | Printint e -> x86gen_exp symt e;
                   ldr "%rdi";
                   call "print";
-									st 0
+                  st 0
   | Let (s, e, e') -> x86gen_exp symt e;
                       x86gen_exp ((s, !sp) :: symt) e';
                       ilet ()
   | New (s, e, e') -> x86gen_exp symt e;
                       lea !sp;
                       x86gen_exp ((s, !sp) :: symt) e';
-											ldr "%rax";
-											ldr "%rbx";
-											ldr "%rbx";
-											str "%rax"
+                      ldr "%rax";
+                      ldr "%rbx";
+                      ldr "%rbx";
+                      str "%rax"
   | Application (s, args) when exists s !funs -> x86gen_storeargs (List.rev args) regs symt;
-																									 call s;
-																									 str "%rax"
-	| Application (s, args) -> let addr = lookup s symt in
-														 id addr;
-														 deref ();
-														 ldr "%r10";
-														 x86gen_storeargs (List.rev args) regs symt;
-														 calld "%r10";
-														 str "%rax"
+                                                   call s;
+                                                   str "%rax"
+  | Application (s, args) -> let addr = lookup s symt in
+                             id addr;
+                             deref ();
+                             ldr "%r10";
+                             x86gen_storeargs (List.rev args) regs symt;
+                             calld "%r10";
+                             str "%rax"
   | Deref (Identifier s) when not (in_scope s symt) -> stf s
   | Identifier s -> let addr = lookup s symt in
                     id addr
   | Seq (e, e') -> x86gen_exp symt e;
                    x86gen_exp symt e';
-									 ilet ()
+                   ilet ()
   | Lambda (args, e') -> let lbl = "LAMBDA"^(string_of_int (genlblno())) in
-												 lambdas := (lbl, args, e')::(!lambdas);
-												 stf lbl
+                         lambdas := (lbl, args, e')::(!lambdas);
+                         stf lbl
   | Asg (e, e') -> x86gen_exp symt e;
                    x86gen_exp symt e';
                    asg ()
@@ -147,35 +147,35 @@ let rec x86gen_exp symt = function
                        x86gen_exp symt e;
                        bcheck ();
                        jle lbl;
-											 let old_sp = !sp in
+                       let old_sp = !sp in
                        x86gen_exp symt e';
                        jmp endlbl;
                        printlbl lbl;
-											 sp := old_sp;
+                       sp := old_sp;
                        x86gen_exp symt e'';
                        printlbl endlbl
   | While (e, e') -> let temp_cur_lbl = !cur_lbl in
-										 let temp_cur_end_lbl = !cur_end_lbl in
-									   cur_lbl := "LOOP"^(string_of_int (genlblno()));
+                     let temp_cur_end_lbl = !cur_end_lbl in
+                     cur_lbl := "LOOP"^(string_of_int (genlblno()));
                      cur_end_lbl := "END_"^(!cur_lbl);
-										 st 0;
+                     st 0;
                      printlbl !cur_lbl;
                      x86gen_exp symt e;
                      bcheck ();
                      jle !cur_end_lbl;
-										 ldr "%rax";
+                     ldr "%rax";
                      x86gen_exp symt e';
                      jmp !cur_lbl;
                      printlbl !cur_end_lbl;
-										 cur_lbl := temp_cur_lbl;
-										 cur_end_lbl := temp_cur_end_lbl
+                     cur_lbl := temp_cur_lbl;
+                     cur_end_lbl := temp_cur_end_lbl
   | Deref e -> x86gen_exp symt e;
                deref ()
   | Return e -> x86gen_exp symt e
-	| Break -> if !cur_end_lbl <> "" then jmp !cur_end_lbl
-						 else failwith "Unable to match - Control statement outside loop"
-	| Continue -> if !cur_lbl <> "" then jmp !cur_lbl
-								else failwith "Unable to match - Control statement outside loop"
+  | Break -> if !cur_end_lbl <> "" then jmp !cur_end_lbl
+             else failwith "Unable to match - Control statement outside loop"
+  | Continue -> if !cur_lbl <> "" then jmp !cur_lbl
+                else failwith "Unable to match - Control statement outside loop"
 
 (* Stack frame generation *)
 and x86gen_storeargs es rs symt =
@@ -225,15 +225,15 @@ let rec store_funs = function
 
 (* Program code generation *)
 let x86gen_prog prog = store_funs prog;
-											 x86_prefix |> Buffer.add_string code;
+                       x86_prefix |> Buffer.add_string code;
                        x86gen_fundef 0 prog;
-											 let fcode = Buffer.contents code in
-											 Buffer.clear code;
+                       let fcode = Buffer.contents code in
+                       Buffer.clear code;
                        x86gen_main prog;
-											 let mcode = Buffer.contents code in
-											 Buffer.clear code;
-											 Buffer.add_string code fcode;
-											 x86gen_fundef ((List.length !funs)*3) !lambdas;
-											 Buffer.add_string code mcode;
+                       let mcode = Buffer.contents code in
+                       Buffer.clear code;
+                       Buffer.add_string code fcode;
+                       x86gen_fundef ((List.length !funs)*3) !lambdas;
+                       Buffer.add_string code mcode;
                        x86_suffix |> Buffer.add_string code;
                        Buffer.output_buffer stdout code
