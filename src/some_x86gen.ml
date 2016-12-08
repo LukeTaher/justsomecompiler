@@ -5,6 +5,8 @@ open Printf
 
 (* Code string *)
 let code = Buffer.create 100
+let funs = ref []
+let lambdas = ref []
 
 (* Registers *)
 let sp = ref 0
@@ -33,6 +35,8 @@ let rec string_of_op = function
 	  | Or -> "or %rax, %rbx\n"
 
 let st n = sp := !sp + 1; "pushq $" ^ (string_of_int n) ^ "\n" |> Buffer.add_string code
+
+let stf s = sp := !sp + 1; "movabsq $_" ^ s ^ ", %rbx\n pushq %rbx \n" |> Buffer.add_string code
 
 let str r = sp := !sp + 1; "pushq " ^ r ^ "\n" |> Buffer.add_string code
 
@@ -71,6 +75,8 @@ let printlbl label = label ^ ":\n" |> Buffer.add_string code
 
 let call label = "callq _" ^ label ^ "\n" |> Buffer.add_string code
 
+let calld r = "callq *" ^ r ^ "\n" |> Buffer.add_string code
+
 let movr r r' = "movq " ^ r ^ ", (" ^ r' ^ ") \n" |> Buffer.add_string code
 
 let alc () = "subq	$8, %rsp\n" |> Buffer.add_string code
@@ -82,29 +88,52 @@ let rec lookup s = function
   | [] -> failwith "Unable to match - Address out of bounds"
   | (s', addr)::symt -> if s = s' then addr else lookup s symt
 
+let rec in_scope s = function
+	| [] -> false
+	| (s', addr)::symt -> if s = s' then true else in_scope s symt
+
+let rec exists s = function
+	| [] -> false
+	| s'::fs -> if s = s' then true else exists s fs
+
 (* Code generation *)
 let rec x86gen_exp symt = function
   | Const i -> st i
-  | Readint ->
-							 call "read";
-							 str "%rax";
+  | Readint -> call "read";
+							 str "%rax"
   | Printint e -> x86gen_exp symt e;
                   ldr "%rdi";
-                  call "print"
+                  call "print";
+									st 0
   | Let (s, e, e') -> x86gen_exp symt e;
                       x86gen_exp ((s, !sp) :: symt) e';
                       ilet ()
   | New (s, e, e') -> x86gen_exp symt e;
                       lea !sp;
-                      x86gen_exp ((s, !sp) :: symt) e'
-  | Application (s, args) -> x86gen_storeargs (List.rev args) regs symt;
-														 call s;
+                      x86gen_exp ((s, !sp) :: symt) e';
+											ldr "%rax";
+											ldr "%rbx";
+											ldr "%rbx";
+											str "%rax"
+  | Application (s, args) when exists s !funs -> x86gen_storeargs (List.rev args) regs symt;
+																									 call s;
+																									 str "%rax"
+	| Application (s, args) -> let addr = lookup s symt in
+														 id addr;
+														 deref ();
+														 ldr "%r10";
+														 x86gen_storeargs (List.rev args) regs symt;
+														 calld "%r10";
 														 str "%rax"
+  | Deref (Identifier s) when not (in_scope s symt) -> stf s
   | Identifier s -> let addr = lookup s symt in
                     id addr
   | Seq (e, e') -> x86gen_exp symt e;
                    x86gen_exp symt e';
 									 ilet ()
+  | Lambda (args, e') -> let lbl = "LAMBDA"^(string_of_int (genlblno())) in
+												 lambdas := (lbl, args, e')::(!lambdas);
+												 stf lbl
   | Asg (e, e') -> x86gen_exp symt e;
                    x86gen_exp symt e';
                    asg ()
@@ -134,6 +163,7 @@ let rec x86gen_exp symt = function
                      x86gen_exp symt e;
                      bcheck ();
                      jle !cur_end_lbl;
+										 ldr "%rax";
                      x86gen_exp symt e';
                      jmp !cur_lbl;
                      printlbl !cur_end_lbl;
@@ -146,7 +176,6 @@ let rec x86gen_exp symt = function
 						 else failwith "Unable to match - Control statement outside loop"
 	| Continue -> if !cur_lbl <> "" then jmp !cur_lbl
 								else failwith "Unable to match - Control statement outside loop"
-  | _ -> failwith "Unable to Compile"
 
 (* Stack frame generation *)
 and x86gen_storeargs es rs symt =
@@ -189,9 +218,22 @@ let rec x86gen_main = function
   | x::prog -> x86gen_main prog
   | [] -> failwith "Unable to Compile"
 
+(* Lambda code generation *)
+let rec store_funs = function
+| [] -> ()
+| (name, args, exp)::prog -> funs := name::(!funs); store_funs prog
+
 (* Program code generation *)
-let x86gen_prog prog = x86_prefix |> Buffer.add_string code;
+let x86gen_prog prog = store_funs prog;
+											 x86_prefix |> Buffer.add_string code;
                        x86gen_fundef 0 prog;
+											 let fcode = Buffer.contents code in
+											 Buffer.clear code;
                        x86gen_main prog;
+											 let mcode = Buffer.contents code in
+											 Buffer.clear code;
+											 Buffer.add_string code fcode;
+											 x86gen_fundef ((List.length !funs)*3) !lambdas;
+											 Buffer.add_string code mcode;
                        x86_suffix |> Buffer.add_string code;
                        Buffer.output_buffer stdout code
