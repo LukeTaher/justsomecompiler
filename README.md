@@ -1,12 +1,9 @@
-### Assignment 7 Notes
-- Compilation of:
-  - If & While
-  - Break & Continue
-- Generated executables in `test/asm7/asmX/executables`
-- Generated x86 assembly in `test/asm7/asmX/assembly`
+### Assignment 8 Notes
+- Function pointers (including as argument and return values)
+- Lambdas
+- Memoisation (Compile time)
 
-
-*see asm7 test script for examples*
+*see asm8 test script for examples*
 
 ## About
 A compiler developed in OCaml with OCamllex and Menhir for the Compiler Construction module at the University of Birmingham. Intended to mimic a C-like syntax with functional characteristics.
