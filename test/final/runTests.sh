@@ -7,7 +7,8 @@ printf "\n===== ⚙  Running final test script ⚙  =====\n"
 for set in asm*
 do
 	cd $set
-
+	mkdir -p assembly
+	mkdir -p executables
 	printf "\n> Running $set tests in x86 mode\n\n"
 	for test in test*
 	do
