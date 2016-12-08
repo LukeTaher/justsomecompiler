@@ -1,0 +1,9 @@
+/*
+  Tests if statement elimination and optimisation
+*/
+
+main(){
+  const x = 10;
+  const y = 10;
+  if(x==y){if(read_int()==0){x-9}else{0}}else{0}
+}

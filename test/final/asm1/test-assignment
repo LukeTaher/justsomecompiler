@@ -1,0 +1,25 @@
+/*
+	Tests assignment
+*/
+
+main(){
+	var x = 5;
+	~x
+}
+
+b(){
+	const x = 100;
+	x
+}
+
+c(){
+	var x = 10;
+	const y = ~x;
+	~x+y
+}
+
+d(){
+	var x = 10;
+	x = 5;
+	~x
+}

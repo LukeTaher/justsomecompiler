@@ -1,0 +1,10 @@
+/*
+  Tests variables
+*/
+
+main(){
+  var x = 0;
+  var y = 5;
+  x = ~y;
+  ~x + ~y
+}

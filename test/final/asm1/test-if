@@ -1,0 +1,22 @@
+/*
+	Tests if statements
+*/
+
+main(){
+  const x = 1;
+	if(x){
+		10
+	}
+	else{
+		20
+	}
+}
+
+b(x){
+	x = if(x > 0){
+		5
+	}
+	else{
+		6
+	}
+}

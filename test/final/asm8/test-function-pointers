@@ -1,0 +1,13 @@
+/*
+	Tests function pointers
+*/
+
+main(){
+	var sqr = ~a;
+	var dbl = fun x -> (x*2);
+	sqr(2) - dbl(2)
+}
+
+a(x){
+	x*x
+}

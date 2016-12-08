@@ -1,0 +1,6 @@
+/*
+	Tests function definitions and application
+*/
+main(){b()}
+b(){c()}
+c(){read_int()}

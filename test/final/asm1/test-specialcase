@@ -1,0 +1,15 @@
+/*
+	Tests the special case given in the general feedback.
+*/
+main(){
+	var x = 5;
+	var y = 10;
+	(const z = ~x + ~y;
+	if(z == 0){
+		x
+	}
+	else{
+		y
+	}) = 7;
+  ~y
+}

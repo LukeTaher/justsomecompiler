@@ -1,0 +1,16 @@
+/*
+	Tests returning function pointer
+*/
+
+main(){
+	var res = a();
+	res(10, 5)
+}
+
+a(){
+	~mul
+}
+
+mul(x, y){
+	x*y
+}

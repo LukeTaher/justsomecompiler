@@ -1,0 +1,36 @@
+/*
+  Tests unknown const folding
+*/
+
+main(){
+  a()+3+2+1
+}
+
+a(){
+  if(1){b()}else{10}
+}
+
+b(){
+  if(1){c()}else{10}
+}
+
+c(){
+  if(1){d()}else{10}
+}
+
+d(){
+  const x = read_int();
+  if(1){e()+x}else{10}
+}
+
+e(){
+  if(1){f()}else{10}
+}
+
+f(){
+  if(1){g()}else{10}
+}
+
+g(){
+  if(1){5}else{10}
+}

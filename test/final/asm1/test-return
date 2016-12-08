@@ -1,0 +1,13 @@
+/*
+	Tests return
+*/
+
+main(){
+	return 5
+}
+
+b(){
+	var x = 5;
+	var y = 10;
+	return y >= 5
+}

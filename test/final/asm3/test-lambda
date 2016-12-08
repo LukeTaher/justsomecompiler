@@ -1,0 +1,14 @@
+/*
+	Tests lambdas
+*/
+
+main(){
+	var b = 5;
+	var c = b;
+	var l = fun x, y, z -> (x*y+z);
+	~b + l(1,2,3)
+}
+
+test(x){
+	x
+}

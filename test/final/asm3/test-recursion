@@ -1,0 +1,28 @@
+/*
+	Test recursion
+*/
+
+main(){
+	var x = (const y = 2; y+2);
+	var y = (var x = 1; ~x+9);
+	y = x;
+	b(~y) = a();
+	~x
+}
+
+a(){
+	c(1)
+}
+
+b(num){
+	num
+}
+
+c(x){
+	if(x < 100){
+		c(x + 1)
+	}
+	else{
+		x
+	}
+}

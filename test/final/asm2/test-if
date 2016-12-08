@@ -1,0 +1,32 @@
+/*
+	Tests evaluation of if
+*/
+main(){
+	var a = 100;
+	var b = 100;
+	var c = 1;
+
+	var abool = ~a == ~b;
+	var bbool = ~b <= ~c;
+	var cbool = ~c > ~a;
+
+	var x = if (~abool){
+		if(!(~bbool)){
+			if(!(~cbool)){
+				1
+			}
+			else{
+				0
+			}
+		}
+		else{
+			0
+		}
+	}
+	else{
+		0
+	};
+
+	if(~x == 1){x}else{a} = 99;
+	~x
+}

@@ -1,0 +1,21 @@
+/*
+	Tests while loops
+*/
+
+main(){
+  1
+}
+
+testfuna(x){
+	while(x > 5){
+		x = x - 5
+	}
+}
+
+testfunb(x){
+	while(x > 10){
+		while(x > 20){
+			x = x - 5
+		}
+	}
+}

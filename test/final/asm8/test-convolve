@@ -1,0 +1,39 @@
+/*
+	Tests function convolution
+*/
+
+main(){
+	convolve(~f, ~g, 5, 5)
+}
+
+convolve(fA, fB, sizeA, sizeB){
+	var funA = fA;
+	var funB = fB;
+
+	var n = 0;
+	while(~n < (sizeA+sizeB-1)){
+
+		var result = 0;
+
+		const kmin = (if(~n>=(sizeB-1)){~n - (sizeB - 1)}else{0});
+		const kmax = (if(~n<(sizeA-1)){~n}else{sizeA - 1});
+
+		var k = kmin;
+
+		while(~k <= kmax){
+			result = funA(~k)*funB(~n-~k) + ~result;
+			k = ~k + 1
+		};
+
+		n = ~n + 1;
+		print(~result)
+	}
+}
+
+f(x){
+	if(x==0){1}else{if(x==1){1}else{if(x==2){1}else{if(x==3){1}else{1}}}}
+}
+
+g(x){
+	if(x==0){1}else{if(x==1){1}else{if(x==2){1}else{if(x==3){1}else{1}}}}
+}

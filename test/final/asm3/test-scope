@@ -1,0 +1,15 @@
+/*
+	Tests var and const scope
+*/
+
+main(){
+	var x = 5;
+	const x = 2;
+	var y = 2;
+	f(x, ~y)
+}
+
+f(x, y){
+	var z = 3;
+	x + y + ~z
+}

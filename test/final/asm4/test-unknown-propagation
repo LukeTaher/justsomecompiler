@@ -1,0 +1,11 @@
+/*
+  Tests unknown value propagation
+*/
+
+main(){
+  const a = read_int();
+  const b = read_int();
+  const c = 10;
+  const d = 10;
+  d+c+b+a
+}

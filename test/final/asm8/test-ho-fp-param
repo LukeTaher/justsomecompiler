@@ -1,0 +1,16 @@
+/*
+  Tests function pointer passed as argument
+*/
+
+main(){
+	b(~a)
+}
+
+b(f){
+	var c = f;
+	c()
+}
+
+a(){
+	1
+}
