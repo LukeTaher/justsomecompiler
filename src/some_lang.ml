@@ -88,6 +88,7 @@ let _ = match Sys.argv.(1) with
 			|> printf "%s\n"
 		| "-x86" -> open_in Sys.argv.(2)
 			|> parse
+			|> opt_prog
 			|> x86gen_prog
 		| _ -> open_in Sys.argv.(1)
 			|> parse
