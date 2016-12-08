@@ -1,7 +1,9 @@
 open Some_types
 open Printf
+
 (* Functions *)
 let funs = Hashtbl.create 100
+let mem = Hashtbl.create 100
 
 (* Current function *)
 let cur_fun = ref ""
@@ -121,8 +123,16 @@ let rec opt_exp env = function
                         | Identifier s' -> opt_exp ((s, v)::env) e'
                         | _ as v -> Let (s, v, (opt_exp env e')))
   | New (s, e, e') -> let v = opt_exp env e in New (s, v, (opt_exp env e'))
-  | Application (s, args) -> if !cur_fun == s then Application (s, List.map (opt_exp env) args)
-                             else opt_fundef (s, List.map (opt_exp env) args)
+  | Application (s, args) -> let fun_opt = (s, List.map (opt_exp env) args) in
+														 let (s', args') = fun_opt in
+														 (try (Hashtbl.find mem fun_opt)
+ 															with Not_found -> (if !cur_fun == s
+ 																								 then let res = Application (s', args') in
+ 																								 			Hashtbl.replace mem fun_opt res;
+ 																											res
+                        													 else let res = opt_fundef fun_opt in
+ 																										  Hashtbl.replace mem fun_opt res;
+ 																										  res))
 	| Identifier s -> (match (lookup env s) with
                     | Some x -> x
                     | _ -> Identifier s)
